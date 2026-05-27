@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Control de Costos — BiodeS Feedlot</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface2: #f0efe9;
+  --border: rgba(0,0,0,0.10);
+  --border2: rgba(0,0,0,0.18);
+  --text: #1a1a18;
+  --text2: #6b6b62;
+  --text3: #9b9b90;
+  --accent: #2d5a1b;
+  --accent2: #4a8a2e;
+  --accent-light: #eaf3e2;
+  --blue: #1a3f6b;
+  --blue-light: #e3edf7;
+  --amber: #7a4f0d;
+  --amber-light: #fdf0dc;
+  --red: #8b1a1a;
+  --red-light: #fde8e8;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+  --radius: 8px;
+  --radius-lg: 14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+
+/* HEADER */
+.header{background:var(--accent);color:#fff;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.header-brand{display:flex;align-items:center;gap:12px}
+.header-logo{width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.header-title{font-size:18px;font-weight:600;letter-spacing:-0.3px}
+.header-sub{font-size:12px;opacity:.7;margin-top:1px}
+.header-tc{text-align:right}
+.tc-label{font-size:11px;opacity:.7;font-family:var(--mono)}
+.tc-value{font-size:22px;font-weight:600;font-family:var(--mono);letter-spacing:-0.5px}
+.tc-badge{font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,0.2);margin-top:3px;display:inline-block}
+
+/* METRICS BAR */
+.metrics-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.metric{padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)}
+.metric-label{font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.metric-tc{font-size:16px;font-weight:600;color:var(--blue);font-family:var(--mono)}
+.metric-ms{font-size:11px;color:var(--accent2);font-family:var(--mono);margin-top:2px}
+
+/* LAYOUT */
+.layout{display:flex;min-height:calc(100vh - 130px)}
+.sidebar{width:200px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:16px 0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;border-left:3px solid transparent;transition:all .15s}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:var(--accent-light)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.nav-section{font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:16px 20px 6px}
+.content{flex:1;padding:24px 32px;overflow-x:auto}
+.panel{display:none}.panel.active{display:block}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:16px;overflow:hidden}
+.card-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-body{padding:20px}
+
+/* BUTTONS */
+.btn{font-family:var(--sans);font-size:12px;padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--surface2)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:var(--accent2)}
+.btn-sm{font-size:11px;padding:4px 10px}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap}
+
+/* TABLES */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font-size:10px;font-weight:600;color:var(--text3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.td-name{font-weight:500;white-space:nowrap}
+.td-num{font-family:var(--mono);font-size:12px}
+.td-accent{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:600}
+.td-green{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600}
+
+/* INPUTS */
+input[type="number"]{font-family:var(--mono);font-size:12px;padding:4px 7px;border:1px solid var(--border2);border-radius:5px;background:var(--surface);color:var(--text);width:72px}
+input[type="number"]:focus{outline:none;border-color:var(--accent)}
+
+/* BADGES */
+.badge{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500;font-family:var(--mono)}
+.badge-grain{background:var(--blue-light);color:var(--blue)}
+.badge-terc{background:var(--accent-light);color:var(--accent)}
+.badge-other{background:var(--surface2);color:var(--text2)}
+.badge-ok{background:var(--accent-light);color:var(--accent)}
+.badge-err{background:var(--red-light);color:var(--red)}
+.badge-live{background:#e8f5e9;color:#1b5e20;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* DIET TABS */
+.diet-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.diet-tab{font-size:12px;padding:6px 14px;border:1px solid var(--border2);border-radius:20px;cursor:pointer;background:transparent;color:var(--text2);font-weight:500;transition:all .15s}
+.diet-tab:hover{border-color:var(--accent);color:var(--accent)}
+.diet-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* DIET SUMMARY */
+.diet-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.ds-card{background:var(--surface2);border-radius:var(--radius);padding:10px 14px;border:1px solid var(--border)}
+.ds-label{font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.ds-value{font-size:15px;font-weight:600;font-family:var(--mono)}
+.ds-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* HISTORIAL */
+.hist-snap{background:var(--surface2);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;border:1px solid var(--border)}
+.hist-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.hist-date{font-weight:600;font-size:13px}
+.hist-tc{font-family:var(--mono);font-size:12px;color:var(--text2)}
+.hist-dietas{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.hist-d{background:var(--surface);border-radius:6px;padding:8px 10px;border:1px solid var(--border)}
+.hist-d-name{font-size:10px;color:var(--text3);margin-bottom:3px}
+.hist-d-tc{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--blue)}
+.hist-d-ms{font-family:var(--mono);font-size:11px;color:var(--accent)}
+
+/* CHART */
+.chart-wrap{position:relative;width:100%;height:280px}
+
+/* STATUS */
+.status-bar{position:fixed;bottom:16px;right:16px;background:var(--text);color:#fff;font-size:12px;padding:8px 14px;border-radius:8px;opacity:0;transition:opacity .3s;pointer-events:none;font-family:var(--mono);z-index:100}
+.status-bar.show{opacity:1}
+
+/* SYNC */
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#4caf50;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+.sync-dot.error{background:#f44336;animation:none}
+.sync-dot.loading{background:#ff9800}
+
+/* EXPORT */
+.export-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.export-row:last-child{border-bottom:none}
+.copy-btn{font-size:10px;padding:2px 8px;border:1px solid var(--border2);border-radius:4px;background:transparent;cursor:pointer;font-family:var(--mono);color:var(--text2)}
+.copy-btn:hover{background:var(--surface2)}
+
+/* SUM WARNING */
+.sum-ok{color:var(--accent);font-weight:600;font-family:var(--mono)}
+.sum-warn{color:var(--red);font-weight:600;font-family:var(--mono)}
+
+/* SPINNER */
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .content{padding:16px}
+  .metrics-bar{padding:12px 16px}
+  .header{padding:12px 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">
+    <div class="header-logo">🐄</div>
+    <div>
+      <div class="header-title">Control de Costos</div>
+      <div class="header-sub">BiodeS Feedlot</div>
+    </div>
+  </div>
+  <div class="header-tc">
+    <div class="tc-label">Dólar BNA venta</div>
+    <div class="tc-value" id="tc-valor">—</div>
+    <div><span class="tc-badge" id="tc-badge"><span class="spinner"></span>Cargando...</span></div>
+  </div>
+</div>
+
+<div class="metrics-bar" id="metrics-bar">
+  <div class="metric"><div class="metric-label">Terminación</div><div class="metric-tc" id="m-terminacion">—</div><div class="metric-ms" id="ms-terminacion">—</div></div>
+  <div class="metric"><div class="metric-label">Recría</div><div class="metric-tc" id="m-recria">—</div><div class="metric-ms" id="ms-recria">—</div></div>
+  <div class="metric"><div class="metric-label">Destete</div><div class="metric-tc" id="m-destete">—</div><div class="metric-ms" id="ms-destete">—</div></div>
+  <div class="metric"><div class="metric-label">Reproductor</div><div class="metric-tc" id="m-reproductor">—</div><div class="metric-ms" id="ms-reproductor">—</div></div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="switchTab('insumos')"><span class="nav-icon">📦</span>Insumos</div>
+    <div class="nav-item" onclick="switchTab('dietas')"><span class="nav-icon">🌾</span>Dietas</div>
+    <div class="nav-section">Análisis</div>
+    <div class="nav-item" onclick="switchTab('historial')"><span class="nav-icon">📋</span>Historial</div>
+    <div class="nav-item" onclick="switchTab('graficos')"><span class="nav-icon">📈</span>Evolución</div>
+    <div class="nav-section">Herramientas</div>
+    <div class="nav-item" onclick="switchTab('exportar')"><span class="nav-icon">📤</span>Exportar</div>
+  </nav>
+
+  <main class="content">
+
+    <!-- INSUMOS -->
+    <div id="panel-insumos" class="panel active">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Precios de insumos</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px"><span class="sync-dot" id="sync-dot"></span><span id="sync-label">Sincronizado con Firebase</span></div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary btn-sm" onclick="guardarSnapshot()">💾 Guardar snapshot</button>
+            <button class="btn btn-sm" onclick="fetchTC()">🔄 Actualizar TC</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Insumo</th><th>Tipo</th>
+              <th>USD/tn</th><th>Desc.</th><th>% MS</th>
+              <th>ARS/tn TC</th><th>ARS/kg TC</th>
+              <th>ARS/tn MS</th><th>ARS/kg MS</th>
+            </tr></thead>
+            <tbody id="tbody-insumos"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIETAS -->
+    <div id="panel-dietas" class="panel">
+      <div class="diet-tabs">
+        <button class="diet-tab active" onclick="switchDiet('terminacion')">Terminación</button>
+        <button class="diet-tab" onclick="switchDiet('recria')">Recría</button>
+        <button class="diet-tab" onclick="switchDiet('destete')">Destete</button>
+        <button class="diet-tab" onclick="switchDiet('reproductor')">Reproductor</button>
+      </div>
+      <div id="diet-content"></div>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div id="panel-historial" class="panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Historial de snapshots</div></div>
+        <div class="card-body" id="hist-content">
+          <p style="color:var(--text3);font-size:13px;">Sin snapshots aún. Actualizá los precios y guardá un snapshot.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRAFICOS -->
+    <div id="panel-graficos" class="panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Evolución de precios</div>
+          <div class="btn-group">
+            <select id="graf-tipo" onchange="renderGrafSelect();renderGraf()" style="font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-family:var(--sans)">
+              <option value="insumo">Precio de insumo</option>
+              <option value="dieta">Costo de dieta</option>
+            </select>
+            <select id="graf-sel" onchange="renderGraf()" style="font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-family:var(--sans)"></select>
+          </div>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;gap:16px;margin-bottom:12px;font-size:11px;color:var(--text2);font-family:var(--mono)">
+            <span><span style="display:inline-block;width:10px;height:10px;background:var(--blue);border-radius:2px;margin-right:4px;vertical-align:middle"></span>USD/tn · $/día TC</span>
+            <span><span style="display:inline-block;width:10px;height:3px;background:var(--accent);margin-right:4px;vertical-align:middle;border-top:2px dashed var(--accent)"></span>ARS/tn · $/día MS</span>
+          </div>
+          <div class="chart-wrap"><canvas id="main-chart" role="img" aria-label="Evolución de precios o costos de dieta">Gráfico de evolución.</canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPORTAR -->
+    <div id="panel-exportar" class="panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Exportar a Cattler</div>
+          <button class="btn btn-sm" onclick="copiarTodo()">📋 Copiar todo</button>
+        </div>
+        <div class="card-body">
+          <p style="font-size:12px;color:var(--text2);margin-bottom:16px;padding:10px 12px;background:var(--blue-light);border-radius:var(--radius);color:var(--blue)">ℹ️ Valores calculados al TC del día. Copiá y pegá en Cattler.</p>
+          <table>
+            <thead><tr><th>Insumo</th><th>ARS/tn TC</th><th>ARS/kg TC</th><th>ARS/tn MS</th><th>ARS/kg MS</th><th></th></tr></thead>
+            <tbody id="tbody-export"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="status-bar" id="status-bar"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import Chart from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/+esm";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD8XCRq3QteJKJwC3gwLtLW5ZtdAi0g8b4",
+  authDomain: "control-de-costos-ffe65.firebaseapp.com",
+  databaseURL: "https://control-de-costos-ffe65-default-rtdb.firebaseio.com",
+  projectId: "control-de-costos-ffe65",
+  storageBucket: "control-de-costos-ffe65.firebasestorage.app",
+  messagingSenderId: "317126252334",
+  appId: "1:317126252334:web:0d48a19260c3a07b204cbf",
+  measurementId: "G-FGKX1YR1PR"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ── DATOS DEFAULT ──────────────────────────────────────────────
+const INSUMOS_DEFAULT = [
+  {id:'rollo_maiz',nombre:'Rollo de Maíz',tipo:'other',usd:95,ms:90},
+  {id:'maiz_humedo',nombre:'Maíz húmedo partido',tipo:'grain',usd:210,ms:78},
+  {id:'expeller_soja',nombre:'Expeller de Soja',tipo:'terc',usd:380,ms:87},
+  {id:'biopremix',nombre:'Biopremix MX',tipo:'terc',usd:2130,ms:98},
+  {id:'agua',nombre:'Agua',tipo:'other',usd:0,ms:0},
+  {id:'silo_cebada',nombre:'Silo de Cebada',tipo:'terc',usd:50,ms:24.12},
+  {id:'silo_maiz_torta',nombre:'Silo de Maíz Torta 2025',tipo:'terc',usd:43,ms:39.68},
+  {id:'limp_espartillar',nombre:'Limpieza Espartillar',tipo:'other',usd:55,ms:90},
+  {id:'avena',nombre:'Avena',tipo:'grain',usd:230,ms:95},
+  {id:'limp_vicia',nombre:'Limpieza de Vicia',tipo:'other',usd:12,ms:92.2},
+  {id:'cebada_humeda',nombre:'Cebada Húmeda',tipo:'grain',usd:230,ms:80},
+];
+
+const DIETAS_DEFAULT = {
+  terminacion:{nombre:'Terminación',consumo_tc:15,insumos:[
+    {id:'silo_maiz_torta',pct_tc:39.2},{id:'maiz_humedo',pct_tc:28},
+    {id:'avena',pct_tc:3.5},{id:'expeller_soja',pct_tc:8.7},
+    {id:'biopremix',pct_tc:0.6},{id:'agua',pct_tc:10},
+    {id:'limp_espartillar',pct_tc:1.1},{id:'rollo_maiz',pct_tc:5.4},
+    {id:'cebada_humeda',pct_tc:3.5}
+  ]},
+  recria:{nombre:'Recría',consumo_tc:12,insumos:[
+    {id:'rollo_maiz',pct_tc:10},{id:'maiz_humedo',pct_tc:10},
+    {id:'expeller_soja',pct_tc:8},{id:'biopremix',pct_tc:0.6},
+    {id:'agua',pct_tc:10},{id:'silo_cebada',pct_tc:23},
+    {id:'silo_maiz_torta',pct_tc:23},{id:'limp_espartillar',pct_tc:2.4},
+    {id:'avena',pct_tc:5},{id:'limp_vicia',pct_tc:3},
+    {id:'cebada_humeda',pct_tc:5}
+  ]},
+  destete:{nombre:'Destete',consumo_tc:7.5,insumos:[
+    {id:'silo_maiz_torta',pct_tc:70},{id:'maiz_humedo',pct_tc:9},
+    {id:'avena',pct_tc:4.35},{id:'expeller_soja',pct_tc:11.5},
+    {id:'biopremix',pct_tc:0.8},{id:'cebada_humeda',pct_tc:4.35}
+  ]},
+  reproductor:{nombre:'Reproductor',consumo_tc:12,insumos:[
+    {id:'rollo_maiz',pct_tc:27},{id:'silo_maiz_torta',pct_tc:44},
+    {id:'expeller_soja',pct_tc:10.4},{id:'biopremix',pct_tc:0.6},
+    {id:'agua',pct_tc:15},{id:'limp_espartillar',pct_tc:3}
+  ]}
+};
+
+// ── ESTADO ─────────────────────────────────────────────────────
+let tc = null;
+let insumos = JSON.parse(JSON.stringify(INSUMOS_DEFAULT));
+let dietas = JSON.parse(JSON.stringify(DIETAS_DEFAULT));
+let historial = [];
+let currentDiet = 'terminacion';
+let chartInst = null;
+
+// ── FIREBASE SYNC ──────────────────────────────────────────────
+function setSyncStatus(state) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  if (!dot) return;
+  dot.className = 'sync-dot' + (state === 'error' ? ' error' : state === 'loading' ? ' loading' : '');
+  lbl.textContent = state === 'ok' ? 'Sincronizado en tiempo real' : state === 'loading' ? 'Sincronizando...' : 'Error de conexión';
+}
+
+// Escuchar cambios en Firebase en tiempo real
+onValue(ref(db, 'feedlot/insumos'), snap => {
+  if (snap.exists()) {
+    insumos = snap.val();
+    renderAll();
+    setSyncStatus('ok');
+  }
+}, err => setSyncStatus('error'));
+
+onValue(ref(db, 'feedlot/dietas'), snap => {
+  if (snap.exists()) {
+    dietas = snap.val();
+    renderAll();
+  }
+});
+
+onValue(ref(db, 'feedlot/historial'), snap => {
+  if (snap.exists()) {
+    const raw = snap.val();
+    historial = Array.isArray(raw) ? raw : Object.values(raw);
+  } else {
+    historial = [];
+  }
+  renderHistorial();
+  renderGrafSelect();
+});
+
+async function saveToFirebase(path, data) {
+  setSyncStatus('loading');
+  try {
+    await set(ref(db, path), data);
+    setSyncStatus('ok');
+  } catch(e) {
+    setSyncStatus('error');
+    showStatus('❌ Error al guardar');
+  }
+}
+
+// ── TIPO DE CAMBIO ─────────────────────────────────────────────
+window.fetchTC = async function() {
+  document.getElementById('tc-badge').innerHTML = '<span class="spinner"></span>Cargando...';
+  try {
+    const r = await fetch('https://dolarapi.com/v1/dolares/oficial');
+    const d = await r.json();
+    tc = parseFloat(d.venta);
+    document.getElementById('tc-valor').textContent = '$' + tc.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    const now = new Date();
+    document.getElementById('tc-badge').innerHTML = '<span class="badge-live" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4caf50;margin-right:4px;vertical-align:middle"></span>BNA en vivo · ' + now.toLocaleTimeString('es-AR', {hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    tc = null;
+    document.getElementById('tc-badge').innerHTML = '⚠️ Sin conexión';
+  }
+  renderAll();
+}
+
+// ── CÁLCULOS ───────────────────────────────────────────────────
+function getIns(id) { return insumos.find ? insumos.find(x=>x.id===id) : Object.values(insumos).find(x=>x.id===id); }
+
+function pTC(ins) {
+  if (!tc || !ins || ins.usd === 0) return 0;
+  return ins.tipo === 'grain' ? ins.usd * 0.85 * tc : ins.usd * tc;
+}
+
+function pMS(ins) {
+  const p = pTC(ins);
+  if (!p || !ins.ms || ins.ms === 0) return 0;
+  return p / (ins.ms / 100);
+}
+
+function calcDieta(dk) {
+  const d = dietas[dk];
+  if (!tc || !d) return null;
+  let costTC=0, costMS=0, kgMS=0;
+  const dins = Array.isArray(d.insumos) ? d.insumos : Object.values(d.insumos);
+  dins.forEach(di => {
+    const ins = getIns(di.id); if (!ins) return;
+    const kgTCi = d.consumo_tc * (di.pct_tc / 100);
+    const kgMSi = kgTCi * (ins.ms / 100);
+    kgMS += kgMSi;
+    costTC += kgTCi * (pTC(ins) / 1000);
+    costMS += kgMSi * (pMS(ins) / 1000);
+  });
+  return {costTC, costMS, kgTC: d.consumo_tc, kgMS};
+}
+
+// ── RENDER ALL ─────────────────────────────────────────────────
+function renderAll() {
+  renderInsumos();
+  renderDieta(currentDiet);
+  renderExport();
+  updateMetrics();
+}
+
+function updateMetrics() {
+  ['terminacion','recria','destete','reproductor'].forEach(dk => {
+    const r = calcDieta(dk);
+    if (r) {
+      document.getElementById('m-' + dk).textContent = '$' + Math.round(r.costTC).toLocaleString('es-AR') + '/día';
+      document.getElementById('ms-' + dk).textContent = '$' + Math.round(r.costMS).toLocaleString('es-AR') + '/día MS';
+    }
+  });
+}
+
+// ── RENDER INSUMOS ─────────────────────────────────────────────
+function tipoBadge(t) {
+  if (t==='grain') return '<span class="badge badge-grain">Commodity</span>';
+  if (t==='terc') return '<span class="badge badge-terc">Tercerizado</span>';
+  return '<span class="badge badge-other">Otro</span>';
+}
+
+function renderInsumos() {
+  const arr = Array.isArray(insumos) ? insumos : Object.values(insumos);
+  let html = '';
+  arr.forEach((ins, i) => {
+    const ptc = pTC(ins), pms = pMS(ins);
+    const fTn = v => v ? '$' + Math.round(v).toLocaleString('es-AR') : '—';
+    const fKg = v => v ? '$' + (v/1000).toFixed(2) : '—';
+    html += `<tr>
+      <td class="td-name">${ins.nombre}</td>
+      <td>${tipoBadge(ins.tipo)}</td>
+      <td><input type="number" value="${ins.usd}" step="0.5" min="0" onchange="updIns(${i},'usd',this.value)"/></td>
+      <td style="color:var(--text3);font-size:11px">${ins.tipo==='grain'?'15%':'—'}</td>
+      <td style="display:flex;align-items:center;gap:3px"><input type="number" value="${ins.ms}" step="0.1" min="0" max="100" onchange="updIns(${i},'ms',this.value)"/><span style="font-size:11px;color:var(--text3)">%</span></td>
+      <td class="td-accent">${fTn(ptc)}</td>
+      <td class="td-num">${fKg(ptc)}</td>
+      <td class="td-green">${fTn(pms)}</td>
+      <td class="td-num">${fKg(pms)}</td>
+    </tr>`;
+  });
+  document.getElementById('tbody-insumos').innerHTML = html;
+}
+
+window.updIns = function(i, field, val) {
+  const arr = Array.isArray(insumos) ? insumos : Object.values(insumos);
+  arr[i][field] = parseFloat(val) || 0;
+  insumos = arr;
+  renderAll();
+  // Debounce save
+  clearTimeout(window._saveTimer);
+  window._saveTimer = setTimeout(() => saveToFirebase('feedlot/insumos', insumos), 1200);
+}
+
+// ── RENDER DIETA ───────────────────────────────────────────────
+function renderDieta(dk) {
+  const d = dietas[dk];
+  if (!d) return;
+  const r = calcDieta(dk);
+  const dins = Array.isArray(d.insumos) ? d.insumos : Object.values(d.insumos);
+  const sumPct = dins.reduce((a,x) => a + x.pct_tc, 0);
+  const sc = Math.abs(sumPct - 100) < 0.5 ? 'sum-ok' : 'sum-warn';
+
+  let rows = '';
+  dins.forEach((di, i) => {
+    const ins = getIns(di.id); if (!ins) return;
+    const kgTC = d.consumo_tc * (di.pct_tc / 100);
+    const kgMS = kgTC * (ins.ms / 100);
+    const ctc = pTC(ins) ? kgTC * (pTC(ins) / 1000) : 0;
+    const cms = pMS(ins) ? kgMS * (pMS(ins) / 1000) : 0;
+    rows += `<tr>
+      <td class="td-name">${ins.nombre}</td>
+      <td style="display:flex;align-items:center;gap:3px"><input type="number" value="${di.pct_tc}" step="0.1" min="0" max="100" style="width:60px" onchange="updDiet('${dk}',${i},this.value)"/><span style="font-size:11px;color:var(--text3)">%</span></td>
+      <td class="td-num">${kgTC.toFixed(2)} kg</td>
+      <td class="td-num">${ins.ms}%</td>
+      <td class="td-num">${kgMS.toFixed(2)} kg</td>
+      <td class="td-accent">${ctc ? '$' + Math.round(ctc).toLocaleString('es-AR') : '—'}</td>
+      <td class="td-green">${cms ? '$' + Math.round(cms).toLocaleString('es-AR') : '—'}</td>
+    </tr>`;
+  });
+
+  document.getElementById('diet-content').innerHTML = `
+  <div class="diet-summary">
+    <div class="ds-card">
+      <div class="ds-label">Consumo diario</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="number" value="${d.consumo_tc}" step="0.5" min="0" style="width:70px;font-size:15px;font-weight:600" onchange="updConsumo('${dk}',this.value)"/>
+        <span style="font-size:11px;color:var(--text3)">kg TC/animal/día</span>
+      </div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-label">Suma proporciones</div>
+      <div class="ds-value ${sc}">${sumPct.toFixed(2)}%</div>
+    </div>
+    ${r ? `
+    <div class="ds-card">
+      <div class="ds-label">Costo/animal/día TC</div>
+      <div class="ds-value" style="color:var(--blue)">$${Math.round(r.costTC).toLocaleString('es-AR')}</div>
+      <div class="ds-sub">base tal cual</div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-label">Costo/animal/día MS</div>
+      <div class="ds-value" style="color:var(--accent)">$${Math.round(r.costMS).toLocaleString('es-AR')}</div>
+      <div class="ds-sub">base materia seca</div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-label">kg MS/animal/día</div>
+      <div class="ds-value">${r.kgMS.toFixed(2)}</div>
+      <div class="ds-sub">kg de MS consumida</div>
+    </div>` : ''}
+  </div>
+  <div class="card">
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Insumo</th><th>% TC</th><th>kg TC/día</th>
+        <th>% MS ins.</th><th>kg MS/día</th>
+        <th>$/animal/día TC</th><th>$/animal/día MS</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    </div>
+  </div>`;
+}
+
+window.updDiet = function(dk, i, val) {
+  const dins = Array.isArray(dietas[dk].insumos) ? dietas[dk].insumos : Object.values(dietas[dk].insumos);
+  dins[i].pct_tc = parseFloat(val) || 0;
+  dietas[dk].insumos = dins;
+  renderDieta(dk); updateMetrics();
+  clearTimeout(window._dietTimer);
+  window._dietTimer = setTimeout(() => saveToFirebase('feedlot/dietas', dietas), 1200);
+}
+
+window.updConsumo = function(dk, val) {
+  dietas[dk].consumo_tc = parseFloat(val) || 0;
+  renderDieta(dk); updateMetrics();
+  clearTimeout(window._dietTimer);
+  window._dietTimer = setTimeout(() => saveToFirebase('feedlot/dietas', dietas), 1200);
+}
+
+window.switchDiet = function(dk) {
+  currentDiet = dk;
+  document.querySelectorAll('.diet-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['terminacion','recria','destete','reproductor'][i] === dk);
+  });
+  renderDieta(dk);
+}
+
+// ── SNAPSHOT ───────────────────────────────────────────────────
+window.guardarSnapshot = async function() {
+  if (!tc) { alert('Esperá que cargue el tipo de cambio.'); return; }
+  const arr = Array.isArray(insumos) ? insumos : Object.values(insumos);
+  const snap = {
+    fecha: new Date().toISOString(),
+    tc,
+    precios: arr.map(ins => ({id:ins.id, nombre:ins.nombre, usd:ins.usd, ms:ins.ms, ars_tc:pTC(ins), ars_ms:pMS(ins)})),
+    dietas: Object.keys(dietas).reduce((acc, dk) => {
+      const r = calcDieta(dk);
+      acc[dk] = {nombre: dietas[dk].nombre, consumo_tc: dietas[dk].consumo_tc, ...(r||{})};
+      return acc;
+    }, {})
+  };
+  const newList = [...historial, snap];
+  await saveToFirebase('feedlot/historial', newList);
+  showStatus('✓ Snapshot guardado y sincronizado');
+}
+
+// ── HISTORIAL ──────────────────────────────────────────────────
+function renderHistorial() {
+  const el = document.getElementById('hist-content');
+  if (!el) return;
+  if (!historial.length) {
+    el.innerHTML = '<p style="color:var(--text3);font-size:13px;">Sin snapshots aún.</p>';
+    return;
+  }
+  const sorted = [...historial].reverse();
+  let html = '';
+  sorted.forEach((snap, si) => {
+    const d = new Date(snap.fecha);
+    const lbl = d.toLocaleString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    html += `<div class="hist-snap">
+      <div class="hist-head">
+        <span class="hist-date">${lbl}</span>
+        <span class="hist-tc">TC $${snap.tc.toLocaleString('es-AR',{minimumFractionDigits:2})}</span>
+      </div>
+      <div class="hist-dietas">`;
+    Object.values(snap.dietas).forEach(dr => {
+      html += `<div class="hist-d">
+        <div class="hist-d-name">${dr.nombre}</div>
+        <div class="hist-d-tc">$${Math.round(dr.costTC||0).toLocaleString('es-AR')}/día TC</div>
+        <div class="hist-d-ms">$${Math.round(dr.costMS||0).toLocaleString('es-AR')}/día MS</div>
+      </div>`;
+    });
+    html += `</div>
+      <details style="margin-top:10px;font-size:11px">
+        <summary style="cursor:pointer;color:var(--text3)">Ver precios de insumos</summary>
+        <div style="margin-top:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:4px">`;
+    snap.precios.forEach((p, pi) => {
+      const prev = sorted[si+1]?.precios?.find(x=>x.id===p.id);
+      let diff = '';
+      if (prev && prev.usd && p.usd) {
+        const pct = ((p.usd - prev.usd)/prev.usd)*100;
+        if (Math.abs(pct)>0.1) diff = pct>0
+          ? ` <span style="color:var(--red);font-size:10px">▲${pct.toFixed(1)}%</span>`
+          : `<span style="color:var(--accent);font-size:10px">▼${Math.abs(pct).toFixed(1)}%</span>`;
+      }
+      html += `<div style="padding:3px 0;color:var(--text2);font-family:var(--mono)">${p.nombre}: <span style="color:var(--text)">U$S${p.usd}${diff}</span></div>`;
+    });
+    html += '</div></details></div>';
+  });
+  el.innerHTML = html;
+}
+
+// ── GRÁFICOS ───────────────────────────────────────────────────
+window.renderGrafSelect = function() {
+  const tipo = document.getElementById('graf-tipo').value;
+  const sel = document.getElementById('graf-sel');
+  const prev = sel.value;
+  if (tipo === 'insumo') {
+    const arr = Array.isArray(insumos) ? insumos : Object.values(insumos);
+    sel.innerHTML = arr.map(ins=>`<option value="${ins.id}">${ins.nombre}</option>`).join('');
+  } else {
+    sel.innerHTML = Object.keys(dietas).map(dk=>`<option value="${dk}">${dietas[dk].nombre}</option>`).join('');
+  }
+  if (prev) sel.value = prev;
+}
+
+window.renderGraf = function() {
+  const tipo = document.getElementById('graf-tipo').value;
+  const selVal = document.getElementById('graf-sel').value;
+  const labels=[], d1=[], d2=[];
+  historial.forEach(snap => {
+    const d = new Date(snap.fecha);
+    labels.push(d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'}));
+    if (tipo==='insumo') {
+      const p = snap.precios.find(x=>x.id===selVal);
+      d1.push(p ? parseFloat(p.usd.toFixed(2)) : null);
+      d2.push(p && p.ars_tc ? Math.round(p.ars_tc) : null);
+    } else {
+      const dr = snap.dietas[selVal];
+      d1.push(dr ? Math.round(dr.costTC||0) : null);
+      d2.push(dr ? Math.round(dr.costMS||0) : null);
+    }
+  });
+  const ctx = document.getElementById('main-chart').getContext('2d');
+  if (chartInst) chartInst.destroy();
+  if (!labels.length) return;
+  chartInst = new Chart(ctx, {
+    type:'line',
+    data:{labels, datasets:[
+      {label:tipo==='insumo'?'USD/tn':'$/día TC', data:d1, borderColor:'#1a3f6b', backgroundColor:'rgba(26,63,107,0.07)', tension:0.3, yAxisID:'y1', pointRadius:5, pointBackgroundColor:'#1a3f6b'},
+      {label:tipo==='insumo'?'ARS/tn TC':'$/día MS', data:d2, borderColor:'#2d5a1b', backgroundColor:'rgba(45,90,27,0.07)', tension:0.3, yAxisID:'y2', borderDash:[6,3], pointRadius:5, pointBackgroundColor:'#2d5a1b'}
+    ]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        y1:{type:'linear',position:'left',ticks:{font:{size:10,family:'IBM Plex Mono'},callback:v=>tipo==='insumo'?'U$S'+v:'$'+Math.round(v).toLocaleString('es-AR')}},
+        y2:{type:'linear',position:'right',grid:{drawOnChartArea:false},ticks:{font:{size:10,family:'IBM Plex Mono'},callback:v=>'$'+Math.round(v).toLocaleString('es-AR')}},
+        x:{ticks:{autoSkip:false,maxRotation:45,font:{size:10,family:'IBM Plex Mono'}}}
+      }
+    }
+  });
+}
+
+// ── EXPORTAR ───────────────────────────────────────────────────
+function renderExport() {
+  const arr = Array.isArray(insumos) ? insumos : Object.values(insumos);
+  let html = '';
+  arr.forEach(ins => {
+    const ptc=pTC(ins), pms=pMS(ins);
+    html += `<tr>
+      <td class="td-name">${ins.nombre}</td>
+      <td class="td-accent">${ptc?'$'+Math.round(ptc).toLocaleString('es-AR'):'—'}</td>
+      <td class="td-num">${ptc?'$'+(ptc/1000).toFixed(2):'—'}</td>
+      <td class="td-green">${pms?'$'+Math.round(pms).toLocaleString('es-AR'):'—'}</td>
+      <td class="td-num">${pms?'$'+(pms/1000).toFixed(2):'—'}</td>
+      <td><button class="copy-btn" onclick="copiarFila('${ins.nombre}',${ptc},${pms})">📋</button></td>
+    </tr>`;
+  });
+  const el = document.getElementById('tbody-export');
+  if (el) el.innerHTML = html;
+}
+
+window.copiarFila = function(nombre,ptc,pms){
+  navigator.clipboard.writeText(`${nombre}\t$${Math.round(ptc).toLocaleString('es-AR')}\t$${(ptc/1000).toFixed(2)}\t$${Math.round(pms).toLocaleString('es-AR')}\t$${(pms/1000).toFixed(2)}`).catch(()=>{});
+  showStatus('✓ Copiado');
+}
+
+window.copiarTodo = function(){
+  const arr = Array.isArray(insumos) ? insumos : Object.values(insumos);
+  let txt='Insumo\tARS/tn TC\tARS/kg TC\tARS/tn MS\tARS/kg MS\n';
+  arr.forEach(ins=>{
+    const ptc=pTC(ins)||0, pms=pMS(ins)||0;
+    txt+=`${ins.nombre}\t$${Math.round(ptc).toLocaleString('es-AR')}\t$${(ptc/1000).toFixed(2)}\t$${Math.round(pms).toLocaleString('es-AR')}\t$${(pms/1000).toFixed(2)}\n`;
+  });
+  navigator.clipboard.writeText(txt).then(()=>showStatus('✓ Tabla copiada al portapapeles')).catch(()=>{});
+}
+
+// ── NAVEGACIÓN ─────────────────────────────────────────────────
+window.switchTab = function(name) {
+  const names=['insumos','dietas','historial','graficos','exportar'];
+  document.querySelectorAll('.nav-item').forEach((t,i)=>t.classList.toggle('active',names[i]===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if (name==='graficos'){renderGrafSelect();renderGraf();}
+  if (name==='historial') renderHistorial();
+  if (name==='dietas') renderDieta(currentDiet);
+  if (name==='exportar') renderExport();
+}
+
+// ── UTILS ──────────────────────────────────────────────────────
+function showStatus(msg) {
+  const el = document.getElementById('status-bar');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2500);
+}
+
+// ── INIT ───────────────────────────────────────────────────────
+fetchTC();
+renderGrafSelect();
+
+</script>
+</body>
+</html>
