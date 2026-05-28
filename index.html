@@ -6,117 +6,77 @@
 <title>Control de Costos — BiodeS Feedlot</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --bg: #f5f4f0;
-  --surface: #ffffff;
-  --surface2: #f0efe9;
-  --border: rgba(0,0,0,0.10);
-  --border2: rgba(0,0,0,0.18);
-  --text: #1a1a18;
-  --text2: #6b6b62;
-  --text3: #9b9b90;
-  --accent: #2d5a1b;
-  --accent2: #4a8a2e;
-  --accent-light: #eaf3e2;
-  --blue: #1a3f6b;
-  --blue-light: #e3edf7;
-  --amber: #7a4f0d;
-  --amber-light: #fdf0dc;
-  --red: #8b1a1a;
-  --red-light: #fde8e8;
-  --mono: 'IBM Plex Mono', monospace;
-  --sans: 'IBM Plex Sans', sans-serif;
-  --radius: 8px;
-  --radius-lg: 14px;
-}
+:root{--bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;--border:rgba(0,0,0,.10);--border2:rgba(0,0,0,.18);--text:#1a1a18;--text2:#6b6b62;--text3:#9b9b90;--accent:#2d5a1b;--accent2:#4a8a2e;--accent-light:#eaf3e2;--blue:#1a3f6b;--blue-light:#e3edf7;--amber:#7a4f0d;--amber-light:#fdf0dc;--red:#8b1a1a;--red-light:#fde8e8;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--radius:8px;--radius-lg:14px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
-
-/* HEADER */
-.header{background:var(--accent);color:#fff;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.header{background:var(--accent);color:#fff;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .header-brand{display:flex;align-items:center;gap:12px}
-.header-logo{width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.header-title{font-size:18px;font-weight:600;letter-spacing:-0.3px}
+.header-logo{width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.header-title{font-size:18px;font-weight:600;letter-spacing:-.3px}
 .header-sub{font-size:12px;opacity:.7;margin-top:1px}
 .header-tc{text-align:right}
 .tc-label{font-size:11px;opacity:.7;font-family:var(--mono)}
-.tc-value{font-size:22px;font-weight:600;font-family:var(--mono);letter-spacing:-0.5px}
-.tc-badge{font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,0.2);margin-top:3px;display:inline-block}
-
-/* METRICS BAR */
+.tc-value{font-size:22px;font-weight:600;font-family:var(--mono);letter-spacing:-.5px}
+.tc-badge{font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,.2);margin-top:3px;display:inline-block}
 .metrics-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .metric{padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)}
 .metric-label{font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
 .metric-tc{font-size:16px;font-weight:600;color:var(--blue);font-family:var(--mono)}
 .metric-ms{font-size:11px;color:var(--accent2);font-family:var(--mono);margin-top:2px}
-
-/* LAYOUT */
-.layout{display:flex;min-height:calc(100vh - 130px)}
-.sidebar{width:200px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:16px 0}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;border-left:3px solid transparent;transition:all .15s}
+.layout{display:flex;min-height:calc(100vh - 160px)}
+.sidebar{width:210px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:16px 0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;border-left:3px solid transparent;transition:all .15s}
 .nav-item:hover{background:var(--surface2);color:var(--text)}
 .nav-item.active{color:var(--accent);border-left-color:var(--accent);background:var(--accent-light)}
-.nav-icon{font-size:16px;width:20px;text-align:center}
-.nav-section{font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:16px 20px 6px}
+.nav-icon{font-size:15px;width:20px;text-align:center}
+.nav-section{font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:14px 20px 5px}
 .content{flex:1;padding:24px 32px;overflow-x:auto}
 .panel{display:none}.panel.active{display:block}
-
-/* CARDS */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:16px;overflow:hidden}
 .card-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-title{font-size:13px;font-weight:600}
 .card-body{padding:20px}
-
-/* BUTTONS */
 .btn{font-family:var(--sans);font-size:12px;padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
 .btn:hover{background:var(--surface2)}
 .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 .btn-primary:hover{background:var(--accent2)}
 .btn-sm{font-size:11px;padding:4px 10px}
-.btn-group{display:flex;gap:8px;flex-wrap:wrap}
-
-/* TABLES */
+.btn-xs{font-size:10px;padding:2px 7px}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th{font-size:10px;font-weight:600;color:var(--text3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
-td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+th{font-size:10px;font-weight:600;color:var(--text3);text-align:left;padding:8px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+td{padding:8px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:var(--surface2)}
-.td-name{font-weight:500;white-space:nowrap}
+.td-name{font-weight:500}
 .td-num{font-family:var(--mono);font-size:12px}
 .td-accent{font-family:var(--mono);font-size:12px;color:var(--blue);font-weight:600}
 .td-green{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600}
-
-/* INPUTS */
-input[type="number"]{font-family:var(--mono);font-size:12px;padding:4px 7px;border:1px solid var(--border2);border-radius:5px;background:var(--surface);color:var(--text);width:72px}
-input[type="number"]:focus{outline:none;border-color:var(--accent)}
-
-/* BADGES */
+.td-amber{font-family:var(--mono);font-size:12px;color:var(--amber);font-weight:600}
+input[type="number"],input[type="text"],input[type="date"]{font-family:var(--mono);font-size:12px;padding:4px 7px;border:1px solid var(--border2);border-radius:5px;background:var(--surface);color:var(--text)}
+input[type="number"]{width:72px}
+input:focus{outline:none;border-color:var(--accent)}
+select{font-family:var(--sans);font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text)}
 .badge{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500;font-family:var(--mono)}
-.badge-grain{background:var(--blue-light);color:var(--blue)}
-.badge-terc{background:var(--accent-light);color:var(--accent)}
-.badge-other{background:var(--surface2);color:var(--text2)}
 .badge-ok{background:var(--accent-light);color:var(--accent)}
-.badge-err{background:var(--red-light);color:var(--red)}
-.badge-live{background:#e8f5e9;color:#1b5e20;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-
-/* DIET TABS */
+.badge-custom{background:var(--amber-light);color:var(--amber)}
 .diet-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
 .diet-tab{font-size:12px;padding:6px 14px;border:1px solid var(--border2);border-radius:20px;cursor:pointer;background:transparent;color:var(--text2);font-weight:500;transition:all .15s}
 .diet-tab:hover{border-color:var(--accent);color:var(--accent)}
 .diet-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-
-/* DIET SUMMARY */
-.diet-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.diet-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
 .ds-card{background:var(--surface2);border-radius:var(--radius);padding:10px 14px;border:1px solid var(--border)}
 .ds-label{font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
 .ds-value{font-size:15px;font-weight:600;font-family:var(--mono)}
 .ds-sub{font-size:11px;color:var(--text3);margin-top:2px}
-
-/* HISTORIAL */
+.ds-card.highlight-blue{border-color:var(--blue);background:var(--blue-light)}
+.ds-card.highlight-green{border-color:var(--accent);background:var(--accent-light)}
+.ms-mode-toggle{display:flex;gap:0;border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;width:fit-content;margin-bottom:8px}
+.ms-mode-btn{font-size:11px;padding:4px 12px;border:none;background:transparent;cursor:pointer;color:var(--text2);font-family:var(--sans);font-weight:500;transition:all .15s}
+.ms-mode-btn.active{background:var(--accent);color:#fff}
 .hist-snap{background:var(--surface2);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;border:1px solid var(--border)}
-.hist-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.hist-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
 .hist-date{font-weight:600;font-size:13px}
 .hist-tc{font-family:var(--mono);font-size:12px;color:var(--text2)}
 .hist-dietas{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
@@ -124,51 +84,73 @@ input[type="number"]:focus{outline:none;border-color:var(--accent)}
 .hist-d-name{font-size:10px;color:var(--text3);margin-bottom:3px}
 .hist-d-tc{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--blue)}
 .hist-d-ms{font-family:var(--mono);font-size:11px;color:var(--accent)}
-
-/* CHART */
-.chart-wrap{position:relative;width:100%;height:280px}
-
-/* STATUS */
+.chart-wrap{position:relative;width:100%;height:300px}
 .status-bar{position:fixed;bottom:16px;right:16px;background:var(--text);color:#fff;font-size:12px;padding:8px 14px;border-radius:8px;opacity:0;transition:opacity .3s;pointer-events:none;font-family:var(--mono);z-index:100}
 .status-bar.show{opacity:1}
-
-/* SYNC */
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#4caf50;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
 .sync-dot.error{background:#f44336;animation:none}
 .sync-dot.loading{background:#ff9800}
-
-/* EXPORT */
-.export-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
-.export-row:last-child{border-bottom:none}
-.copy-btn{font-size:10px;padding:2px 8px;border:1px solid var(--border2);border-radius:4px;background:transparent;cursor:pointer;font-family:var(--mono);color:var(--text2)}
-.copy-btn:hover{background:var(--surface2)}
-
-/* SUM WARNING */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 .sum-ok{color:var(--accent);font-weight:600;font-family:var(--mono)}
 .sum-warn{color:var(--red);font-weight:600;font-family:var(--mono)}
-
-/* SPINNER */
 .spinner{display:inline-block;width:12px;height:12px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:4px}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* RESPONSIVE */
-@media(max-width:768px){
-  .sidebar{display:none}
-  .content{padding:16px}
-  .metrics-bar{padding:12px 16px}
-  .header{padding:12px 16px}
-}
+.copy-btn{font-size:10px;padding:2px 8px;border:1px solid var(--border2);border-radius:4px;background:transparent;cursor:pointer;font-family:var(--mono);color:var(--text2)}
+.copy-btn:hover{background:var(--surface2)}
+.toggle-ars{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border2);background:transparent;cursor:pointer;font-family:var(--mono);color:var(--text2);white-space:nowrap}
+.toggle-ars.manual{background:var(--amber-light);color:var(--amber);border-color:var(--amber)}
+.ms-form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:16px;overflow:hidden}
+.ms-form-header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--accent-light)}
+.ms-form-title{font-size:13px;font-weight:600;color:var(--accent)}
+.ms-form-body{padding:20px}
+.ms-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;align-items:end;margin-bottom:16px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.form-group input,.form-group select{width:100%}
+.custom-ins-wrap{display:none;margin-top:6px;gap:6px;flex-direction:column}
+.custom-ins-wrap.show{display:flex}
+.ms-tabla-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px}
+.ms-tabla-header{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.ms-tabla-title{font-size:13px;font-weight:600}
+.ms-pct{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--accent)}
+.ms-apply-btn{font-size:10px;padding:3px 8px;border:1px solid var(--accent);border-radius:4px;background:var(--accent-light);color:var(--accent);cursor:pointer;white-space:nowrap}
+.ms-apply-btn:hover{background:var(--accent);color:#fff}
+.ms-applied{font-size:10px;padding:3px 8px;border-radius:4px;background:var(--accent-light);color:var(--accent);font-family:var(--mono)}
+.ms-del-btn{font-size:10px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;background:transparent;color:var(--text3);cursor:pointer}
+.ms-del-btn:hover{background:var(--red-light);color:var(--red);border-color:var(--red)}
+.empty-state{padding:32px 20px;text-align:center;color:var(--text3);font-size:13px}
+.trend-up{color:var(--red);font-size:10px;font-family:var(--mono)}
+.trend-down{color:var(--accent);font-size:10px;font-family:var(--mono)}
+.trend-eq{color:var(--text3);font-size:10px;font-family:var(--mono)}
+.ms-sel-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.ms-ins-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);font-size:12px;cursor:pointer;transition:all .15s;user-select:none}
+.ms-ins-chip.selected{color:#fff;border-color:transparent}
+.ms-ins-chip .chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ms-sel-actions{display:flex;gap:6px;margin-bottom:12px}
+.snap-del-btn{font-size:10px;padding:2px 7px;border:1px solid var(--border2);border-radius:4px;background:transparent;color:var(--text3);cursor:pointer;white-space:nowrap}
+.snap-del-btn:hover{background:var(--red-light);color:var(--red);border-color:var(--red)}
+/* CONSUMOS */
+.drop-zone{border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);margin-bottom:16px}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:var(--accent-light)}
+.drop-zone-icon{font-size:32px;margin-bottom:8px}
+.drop-zone-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.drop-zone-sub{font-size:12px;color:var(--text3)}
+.consumo-mes-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);font-size:12px;font-family:var(--mono);background:var(--surface2);cursor:pointer;transition:all .15s}
+.consumo-mes-tag:hover{background:var(--surface)}
+.consumo-mes-tag.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.consumo-mes-del{font-size:10px;padding:1px 4px;border-radius:3px;background:rgba(0,0,0,.1);cursor:pointer}
+.proyeccion-nota{font-size:11px;color:var(--text3);font-style:italic;margin-top:8px;padding:8px 12px;background:var(--amber-light);border-radius:var(--radius);color:var(--amber)}
+.graf-subtabs{display:flex;gap:4px;margin-bottom:16px}
+.graf-subtab{font-size:12px;padding:5px 14px;border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer;background:transparent;color:var(--text2);font-weight:500}
+.graf-subtab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+@media(max-width:768px){.sidebar{display:none}.content{padding:16px}.metrics-bar{padding:12px 16px}.header{padding:12px 16px}}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="header-brand">
     <div class="header-logo">🐄</div>
-    <div>
-      <div class="header-title">Control de Costos</div>
-      <div class="header-sub">BiodeS Feedlot</div>
-    </div>
+    <div><div class="header-title">Control de Costos</div><div class="header-sub">BiodeS Feedlot</div></div>
   </div>
   <div class="header-tc">
     <div class="tc-label">Dólar BNA venta</div>
@@ -176,26 +158,27 @@ input[type="number"]:focus{outline:none;border-color:var(--accent)}
     <div><span class="tc-badge" id="tc-badge"><span class="spinner"></span>Cargando...</span></div>
   </div>
 </div>
-
-<div class="metrics-bar" id="metrics-bar">
+<div class="metrics-bar">
   <div class="metric"><div class="metric-label">Terminación</div><div class="metric-tc" id="m-terminacion">—</div><div class="metric-ms" id="ms-terminacion">—</div></div>
   <div class="metric"><div class="metric-label">Recría</div><div class="metric-tc" id="m-recria">—</div><div class="metric-ms" id="ms-recria">—</div></div>
   <div class="metric"><div class="metric-label">Destete</div><div class="metric-tc" id="m-destete">—</div><div class="metric-ms" id="ms-destete">—</div></div>
   <div class="metric"><div class="metric-label">Reproductor</div><div class="metric-tc" id="m-reproductor">—</div><div class="metric-ms" id="ms-reproductor">—</div></div>
 </div>
-
 <div class="layout">
   <nav class="sidebar">
     <div class="nav-section">Principal</div>
     <div class="nav-item active" onclick="switchTab('insumos')"><span class="nav-icon">📦</span>Insumos</div>
     <div class="nav-item" onclick="switchTab('dietas')"><span class="nav-icon">🌾</span>Dietas</div>
+    <div class="nav-section">Registros</div>
+    <div class="nav-item" onclick="switchTab('consumos')"><span class="nav-icon">📥</span>Consumos Cattler</div>
+    <div class="nav-item" onclick="switchTab('ms-mediciones')"><span class="nav-icon">🧪</span>Mediciones MS</div>
     <div class="nav-section">Análisis</div>
-    <div class="nav-item" onclick="switchTab('historial')"><span class="nav-icon">📋</span>Historial</div>
-    <div class="nav-item" onclick="switchTab('graficos')"><span class="nav-icon">📈</span>Evolución</div>
+    <div class="nav-item" onclick="switchTab('ms-graficos')"><span class="nav-icon">📊</span>Evolución MS</div>
+    <div class="nav-item" onclick="switchTab('historial')"><span class="nav-icon">📋</span>Historial precios</div>
+    <div class="nav-item" onclick="switchTab('graficos')"><span class="nav-icon">📈</span>Evolución precios</div>
     <div class="nav-section">Herramientas</div>
     <div class="nav-item" onclick="switchTab('exportar')"><span class="nav-icon">📤</span>Exportar</div>
   </nav>
-
   <main class="content">
 
     <!-- INSUMOS -->
@@ -209,16 +192,12 @@ input[type="number"]:focus{outline:none;border-color:var(--accent)}
           <div class="btn-group">
             <button class="btn btn-primary btn-sm" onclick="guardarSnapshot()">💾 Guardar snapshot</button>
             <button class="btn btn-sm" onclick="fetchTC()">🔄 Actualizar TC</button>
+            <button class="btn btn-sm" onclick="agregarInsumo()">➕ Nuevo insumo</button>
           </div>
         </div>
         <div class="tbl-wrap">
           <table>
-            <thead><tr>
-              <th>Insumo</th><th>Tipo</th>
-              <th>USD/tn</th><th>Desc.</th><th>% MS</th>
-              <th>ARS/tn TC</th><th>ARS/kg TC</th>
-              <th>ARS/tn MS</th><th>ARS/kg MS</th>
-            </tr></thead>
+            <thead><tr><th>Insumo</th><th>Tipo</th><th>USD/tn</th><th>Desc.%</th><th>% MS</th><th>ARS/tn TC</th><th>Modo</th><th>ARS/kg TC</th><th>ARS/tn MS</th><th>ARS/kg MS</th><th>Observaciones</th><th></th></tr></thead>
             <tbody id="tbody-insumos"></tbody>
           </table>
         </div>
@@ -236,35 +215,152 @@ input[type="number"]:focus{outline:none;border-color:var(--accent)}
       <div id="diet-content"></div>
     </div>
 
-    <!-- HISTORIAL -->
-    <div id="panel-historial" class="panel">
+    <!-- CONSUMOS CATTLER -->
+    <div id="panel-consumos" class="panel">
       <div class="card">
-        <div class="card-header"><div class="card-title">Historial de snapshots</div></div>
-        <div class="card-body" id="hist-content">
-          <p style="color:var(--text3);font-size:13px;">Sin snapshots aún. Actualizá los precios y guardá un snapshot.</p>
+        <div class="card-header">
+          <div class="card-title">📥 Importar consumos desde Cattler</div>
+          <div style="font-size:11px;color:var(--text3)">Exportá "Por dieta+ingrediente, Mensual" desde Cattler como CSV</div>
+        </div>
+        <div class="card-body">
+          <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-input').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+            <div class="drop-zone-icon">📂</div>
+            <div class="drop-zone-title">Arrastrá el CSV acá o hacé clic para seleccionar</div>
+            <div class="drop-zone-sub">Formato: exportación Cattler "Por dieta+ingrediente, Mensual"</div>
+          </div>
+          <input type="file" id="csv-input" accept=".csv" style="display:none" onchange="onFileSelect(event)"/>
+          <div id="import-status" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:var(--radius);font-size:12px"></div>
+        </div>
+      </div>
+
+      <!-- Meses cargados -->
+      <div class="card" id="consumos-meses-card" style="display:none">
+        <div class="card-header">
+          <div class="card-title">Meses importados</div>
+          <div style="font-size:11px;color:var(--text3)">Seleccioná un mes para ver el detalle</div>
+        </div>
+        <div class="card-body">
+          <div id="consumos-meses-tags" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px"></div>
+          <div id="consumos-detalle"></div>
+        </div>
+      </div>
+
+      <!-- Gráficos de consumo -->
+      <div class="card" id="consumos-graficos-card" style="display:none">
+        <div class="card-header"><div class="card-title">Gráficos de consumo</div></div>
+        <div class="card-body">
+          <div class="graf-subtabs">
+            <button class="graf-subtab active" onclick="switchConsumoGraf('kg')">📦 kg por insumo</button>
+            <button class="graf-subtab" onclick="switchConsumoGraf('costo')">💰 Costo por insumo</button>
+            <button class="graf-subtab" onclick="switchConsumoGraf('proyeccion')">🔭 Proyección anual</button>
+          </div>
+          <div id="consumo-graf-kg" class="chart-wrap" style="height:360px"><canvas id="chart-consumo-kg" role="img" aria-label="kg por insumo">Gráfico.</canvas></div>
+          <div id="consumo-graf-costo" class="chart-wrap" style="height:360px;display:none"><canvas id="chart-consumo-costo" role="img" aria-label="costo por insumo">Gráfico.</canvas></div>
+          <div id="consumo-graf-proyeccion" style="display:none">
+            <div class="proyeccion-nota">⚠️ Estimación basada en el promedio de los meses cargados. Cuantos más meses, más precisa la proyección.</div>
+            <div class="tbl-wrap" style="margin-top:12px">
+              <table>
+                <thead><tr><th>Insumo</th><th>Meses con datos</th><th>kg/mes promedio</th><th>kg/año estimado</th><th>Costo/mes promedio</th><th>Costo/año estimado</th></tr></thead>
+                <tbody id="tbody-proyeccion"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- GRAFICOS -->
+    <!-- MEDICIONES MS -->
+    <div id="panel-ms-mediciones" class="panel">
+      <div class="ms-form-card">
+        <div class="ms-form-header"><div class="ms-form-title">🧪 Nueva medición de materia seca — freidora de aire</div></div>
+        <div class="ms-form-body">
+          <div class="ms-form-grid">
+            <div class="form-group">
+              <div class="form-label">Insumo *</div>
+              <select id="ms-ins-sel" onchange="onInsSelChange()"></select>
+              <div class="custom-ins-wrap" id="custom-ins-wrap">
+                <input type="text" id="ms-ins-custom" placeholder="Nombre del insumo..."/>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <input type="checkbox" id="ms-guardar-pred" style="width:auto"/>
+                  <label for="ms-guardar-pred" style="font-size:11px;color:var(--text2);cursor:pointer;font-family:var(--sans)">Guardar como predeterminado en la lista</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group"><div class="form-label">% MS medido *</div><input type="number" id="ms-valor" step="0.01" min="0" max="100" placeholder="ej: 38.50"/></div>
+            <div class="form-group"><div class="form-label">Fecha *</div><input type="date" id="ms-fecha" style="font-family:var(--mono);font-size:12px;padding:4px 7px;border:1px solid var(--border2);border-radius:5px;background:var(--surface);color:var(--text)"/></div>
+            <div class="form-group"><div class="form-label">Proveedor</div><input type="text" id="ms-proveedor" placeholder="ej: Cooperativa XYZ" style="font-family:var(--sans)"/></div>
+            <div class="form-group"><div class="form-label">Costo ARS/tn (opcional)</div><input type="number" id="ms-costo" step="100" min="0" placeholder="opcional"/></div>
+            <div class="form-group" style="grid-column:span 2"><div class="form-label">Observaciones</div><input type="text" id="ms-obs" placeholder="ej: lote 3, entrada húmeda, post-lluvia..." style="font-family:var(--sans)"/></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="agregarMedicionMS()">➕ Registrar medición</button>
+            <span style="font-size:11px;color:var(--text3)">* campos obligatorios</span>
+          </div>
+        </div>
+      </div>
+      <div class="ms-tabla-wrap">
+        <div class="ms-tabla-header">
+          <div class="ms-tabla-title">Registro de mediciones</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:11px;color:var(--text3)">Filtrar:</span>
+            <select id="ms-filtro" onchange="renderMedicionesMS()" style="font-size:12px;padding:4px 8px"><option value="">Todos</option></select>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Insumo</th><th>% MS</th><th>Tendencia</th><th>Fecha</th><th>Proveedor</th><th>Costo ARS/tn</th><th>Observaciones</th><th>En uso</th><th>Acción</th><th></th></tr></thead>
+            <tbody id="tbody-ms"></tbody>
+          </table>
+        </div>
+        <div id="ms-empty" class="empty-state" style="display:none">Sin mediciones aún.</div>
+      </div>
+    </div>
+
+    <!-- EVOLUCIÓN MS -->
+    <div id="panel-ms-graficos" class="panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 Evolución de materia seca por insumo</div></div>
+        <div class="card-body">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Seleccioná uno o varios insumos para comparar su % MS a lo largo del tiempo:</div>
+          <div class="ms-sel-actions">
+            <button class="btn btn-sm" onclick="msGrafSelAll()">Seleccionar todos</button>
+            <button class="btn btn-sm" onclick="msGrafSelNone()">Limpiar</button>
+          </div>
+          <div class="ms-sel-grid" id="ms-chips"></div>
+          <div class="chart-wrap" style="height:340px"><canvas id="ms-chart" role="img" aria-label="Evolución MS">Gráfico.</canvas></div>
+          <div id="ms-graf-legend" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;font-size:11px;font-family:var(--mono)"></div>
+          <div id="ms-graf-empty" style="display:none;text-align:center;color:var(--text3);font-size:13px;padding:40px 0">Sin datos. Registrá mediciones y seleccioná al menos un insumo.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORIAL PRECIOS -->
+    <div id="panel-historial" class="panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Historial de snapshots de precios</div></div>
+        <div class="card-body" id="hist-content"><p style="color:var(--text3);font-size:13px;">Sin snapshots aún.</p></div>
+      </div>
+    </div>
+
+    <!-- EVOLUCIÓN PRECIOS -->
     <div id="panel-graficos" class="panel">
       <div class="card">
         <div class="card-header">
           <div class="card-title">Evolución de precios</div>
           <div class="btn-group">
-            <select id="graf-tipo" onchange="renderGrafSelect();renderGraf()" style="font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-family:var(--sans)">
+            <select id="graf-tipo" onchange="renderGrafSelect();renderGraf()">
               <option value="insumo">Precio de insumo</option>
               <option value="dieta">Costo de dieta</option>
             </select>
-            <select id="graf-sel" onchange="renderGraf()" style="font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-family:var(--sans)"></select>
+            <select id="graf-sel" onchange="renderGraf()"></select>
           </div>
         </div>
         <div class="card-body">
           <div style="display:flex;gap:16px;margin-bottom:12px;font-size:11px;color:var(--text2);font-family:var(--mono)">
             <span><span style="display:inline-block;width:10px;height:10px;background:var(--blue);border-radius:2px;margin-right:4px;vertical-align:middle"></span>USD/tn · $/día TC</span>
-            <span><span style="display:inline-block;width:10px;height:3px;background:var(--accent);margin-right:4px;vertical-align:middle;border-top:2px dashed var(--accent)"></span>ARS/tn · $/día MS</span>
+            <span><span style="display:inline-block;width:10px;height:3px;background:var(--accent);margin-right:4px;vertical-align:middle;border-top:2px dashed var(--accent)"></span>ARS · $/día MS</span>
           </div>
-          <div class="chart-wrap"><canvas id="main-chart" role="img" aria-label="Evolución de precios o costos de dieta">Gráfico de evolución.</canvas></div>
+          <div class="chart-wrap"><canvas id="main-chart" role="img" aria-label="Evolución de precios">Gráfico.</canvas></div>
         </div>
       </div>
     </div>
@@ -277,7 +373,7 @@ input[type="number"]:focus{outline:none;border-color:var(--accent)}
           <button class="btn btn-sm" onclick="copiarTodo()">📋 Copiar todo</button>
         </div>
         <div class="card-body">
-          <p style="font-size:12px;color:var(--text2);margin-bottom:16px;padding:10px 12px;background:var(--blue-light);border-radius:var(--radius);color:var(--blue)">ℹ️ Valores calculados al TC del día. Copiá y pegá en Cattler.</p>
+          <p style="font-size:12px;margin-bottom:16px;padding:10px 12px;background:var(--blue-light);border-radius:var(--radius);color:var(--blue)">ℹ️ Valores calculados al TC del día. Copiá y pegá en Cattler.</p>
           <table>
             <thead><tr><th>Insumo</th><th>ARS/tn TC</th><th>ARS/kg TC</th><th>ARS/tn MS</th><th>ARS/kg MS</th><th></th></tr></thead>
             <tbody id="tbody-export"></tbody>
@@ -288,500 +384,566 @@ input[type="number"]:focus{outline:none;border-color:var(--accent)}
 
   </main>
 </div>
-
 <div class="status-bar" id="status-bar"></div>
 
-<!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 import Chart from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/+esm";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD8XCRq3QteJKJwC3gwLtLW5ZtdAi0g8b4",
-  authDomain: "control-de-costos-ffe65.firebaseapp.com",
-  databaseURL: "https://control-de-costos-ffe65-default-rtdb.firebaseio.com",
-  projectId: "control-de-costos-ffe65",
-  storageBucket: "control-de-costos-ffe65.firebasestorage.app",
-  messagingSenderId: "317126252334",
-  appId: "1:317126252334:web:0d48a19260c3a07b204cbf",
-  measurementId: "G-FGKX1YR1PR"
-};
+const firebaseConfig={apiKey:"AIzaSyD8XCRq3QteJKJwC3gwLtLW5ZtdAi0g8b4",authDomain:"control-de-costos-ffe65.firebaseapp.com",databaseURL:"https://control-de-costos-ffe65-default-rtdb.firebaseio.com",projectId:"control-de-costos-ffe65",storageBucket:"control-de-costos-ffe65.firebasestorage.app",messagingSenderId:"317126252334",appId:"1:317126252334:web:0d48a19260c3a07b204cbf"};
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const CHART_COLORS=['#1a3f6b','#2d5a1b','#7a4f0d','#8b1a1a','#5b3f8a','#1a6b5a','#6b4a1a','#1a5a6b','#6b1a4a','#3d6b1a','#6b3d1a','#1a3d6b','#6b1a3d','#3d1a6b','#1a6b3d'];
 
-// ── DATOS DEFAULT ──────────────────────────────────────────────
-const INSUMOS_DEFAULT = [
-  {id:'rollo_maiz',nombre:'Rollo de Maíz',tipo:'other',usd:95,ms:90},
-  {id:'maiz_humedo',nombre:'Maíz húmedo partido',tipo:'grain',usd:210,ms:78},
-  {id:'expeller_soja',nombre:'Expeller de Soja',tipo:'terc',usd:380,ms:87},
-  {id:'biopremix',nombre:'Biopremix MX',tipo:'terc',usd:2130,ms:98},
-  {id:'agua',nombre:'Agua',tipo:'other',usd:0,ms:0},
-  {id:'silo_cebada',nombre:'Silo de Cebada',tipo:'terc',usd:50,ms:24.12},
-  {id:'silo_maiz_torta',nombre:'Silo de Maíz Torta 2025',tipo:'terc',usd:43,ms:39.68},
-  {id:'limp_espartillar',nombre:'Limpieza Espartillar',tipo:'other',usd:55,ms:90},
-  {id:'avena',nombre:'Avena',tipo:'grain',usd:230,ms:95},
-  {id:'limp_vicia',nombre:'Limpieza de Vicia',tipo:'other',usd:12,ms:92.2},
-  {id:'cebada_humeda',nombre:'Cebada Húmeda',tipo:'grain',usd:230,ms:80},
+const INSUMOS_DEFAULT=[
+  {id:'rollo_maiz',nombre:'Rollo de Maíz',tipo:'other',usd:95,ms:90,desc:0,ars_manual:null,obs:''},
+  {id:'maiz_humedo',nombre:'Maíz húmedo partido',tipo:'grain',usd:210,ms:78,desc:15,ars_manual:null,obs:''},
+  {id:'expeller_soja',nombre:'Expeller de Soja',tipo:'terc',usd:380,ms:87,desc:0,ars_manual:null,obs:''},
+  {id:'biopremix',nombre:'Biopremix MX',tipo:'terc',usd:2130,ms:98,desc:0,ars_manual:null,obs:''},
+  {id:'agua',nombre:'Agua',tipo:'other',usd:0,ms:0,desc:0,ars_manual:null,obs:''},
+  {id:'silo_cebada',nombre:'Silo de Cebada',tipo:'terc',usd:50,ms:24.12,desc:0,ars_manual:null,obs:''},
+  {id:'silo_maiz_torta',nombre:'Silo de Maíz Torta 2025',tipo:'terc',usd:43,ms:39.68,desc:0,ars_manual:null,obs:''},
+  {id:'limp_espartillar',nombre:'Limpieza Espartillar',tipo:'other',usd:55,ms:90,desc:0,ars_manual:null,obs:''},
+  {id:'avena',nombre:'Avena',tipo:'grain',usd:230,ms:95,desc:15,ars_manual:null,obs:''},
+  {id:'limp_vicia',nombre:'Limpieza de Vicia',tipo:'other',usd:12,ms:92.2,desc:0,ars_manual:null,obs:''},
+  {id:'cebada_humeda',nombre:'Cebada Húmeda',tipo:'grain',usd:230,ms:80,desc:15,ars_manual:null,obs:''},
 ];
-
-const DIETAS_DEFAULT = {
-  terminacion:{nombre:'Terminación',consumo_tc:15,insumos:[
-    {id:'silo_maiz_torta',pct_tc:39.2},{id:'maiz_humedo',pct_tc:28},
-    {id:'avena',pct_tc:3.5},{id:'expeller_soja',pct_tc:8.7},
-    {id:'biopremix',pct_tc:0.6},{id:'agua',pct_tc:10},
-    {id:'limp_espartillar',pct_tc:1.1},{id:'rollo_maiz',pct_tc:5.4},
-    {id:'cebada_humeda',pct_tc:3.5}
-  ]},
-  recria:{nombre:'Recría',consumo_tc:12,insumos:[
-    {id:'rollo_maiz',pct_tc:10},{id:'maiz_humedo',pct_tc:10},
-    {id:'expeller_soja',pct_tc:8},{id:'biopremix',pct_tc:0.6},
-    {id:'agua',pct_tc:10},{id:'silo_cebada',pct_tc:23},
-    {id:'silo_maiz_torta',pct_tc:23},{id:'limp_espartillar',pct_tc:2.4},
-    {id:'avena',pct_tc:5},{id:'limp_vicia',pct_tc:3},
-    {id:'cebada_humeda',pct_tc:5}
-  ]},
-  destete:{nombre:'Destete',consumo_tc:7.5,insumos:[
-    {id:'silo_maiz_torta',pct_tc:70},{id:'maiz_humedo',pct_tc:9},
-    {id:'avena',pct_tc:4.35},{id:'expeller_soja',pct_tc:11.5},
-    {id:'biopremix',pct_tc:0.8},{id:'cebada_humeda',pct_tc:4.35}
-  ]},
-  reproductor:{nombre:'Reproductor',consumo_tc:12,insumos:[
-    {id:'rollo_maiz',pct_tc:27},{id:'silo_maiz_torta',pct_tc:44},
-    {id:'expeller_soja',pct_tc:10.4},{id:'biopremix',pct_tc:0.6},
-    {id:'agua',pct_tc:15},{id:'limp_espartillar',pct_tc:3}
-  ]}
+const DIETAS_DEFAULT={
+  terminacion:{nombre:'Terminación',consumo_tc:15,ms_manual:null,insumos:[{id:'silo_maiz_torta',pct_tc:39.2},{id:'maiz_humedo',pct_tc:28},{id:'avena',pct_tc:3.5},{id:'expeller_soja',pct_tc:8.7},{id:'biopremix',pct_tc:0.6},{id:'agua',pct_tc:10},{id:'limp_espartillar',pct_tc:1.1},{id:'rollo_maiz',pct_tc:5.4},{id:'cebada_humeda',pct_tc:3.5}]},
+  recria:{nombre:'Recría',consumo_tc:12,ms_manual:null,insumos:[{id:'rollo_maiz',pct_tc:10},{id:'maiz_humedo',pct_tc:10},{id:'expeller_soja',pct_tc:8},{id:'biopremix',pct_tc:0.6},{id:'agua',pct_tc:10},{id:'silo_cebada',pct_tc:23},{id:'silo_maiz_torta',pct_tc:23},{id:'limp_espartillar',pct_tc:2.4},{id:'avena',pct_tc:5},{id:'limp_vicia',pct_tc:3},{id:'cebada_humeda',pct_tc:5}]},
+  destete:{nombre:'Destete',consumo_tc:7.5,ms_manual:null,insumos:[{id:'silo_maiz_torta',pct_tc:70},{id:'maiz_humedo',pct_tc:9},{id:'avena',pct_tc:4.35},{id:'expeller_soja',pct_tc:11.5},{id:'biopremix',pct_tc:0.8},{id:'cebada_humeda',pct_tc:4.35}]},
+  reproductor:{nombre:'Reproductor',consumo_tc:12,ms_manual:null,insumos:[{id:'rollo_maiz',pct_tc:27},{id:'silo_maiz_torta',pct_tc:44},{id:'expeller_soja',pct_tc:10.4},{id:'biopremix',pct_tc:0.6},{id:'agua',pct_tc:15},{id:'limp_espartillar',pct_tc:3}]}
 };
 
-// ── ESTADO ─────────────────────────────────────────────────────
-let tc = null;
-let insumos = JSON.parse(JSON.stringify(INSUMOS_DEFAULT));
-let dietas = JSON.parse(JSON.stringify(DIETAS_DEFAULT));
-let historial = [];
-let currentDiet = 'terminacion';
-let chartInst = null;
+let tc=null,insumos=JSON.parse(JSON.stringify(INSUMOS_DEFAULT)),dietas=JSON.parse(JSON.stringify(DIETAS_DEFAULT));
+let historial=[],medicionesMS=[],insCustom=[],consumosMensuales={};
+let currentDiet='terminacion',chartInst=null,msChartInst=null;
+let chartConsumoKg=null,chartConsumoCosto=null;
+let msGrafSelected=new Set();
+let mesMostrado=null;
+let currentConsumoGraf='kg';
 
-// ── FIREBASE SYNC ──────────────────────────────────────────────
-function setSyncStatus(state) {
-  const dot = document.getElementById('sync-dot');
-  const lbl = document.getElementById('sync-label');
-  if (!dot) return;
-  dot.className = 'sync-dot' + (state === 'error' ? ' error' : state === 'loading' ? ' loading' : '');
-  lbl.textContent = state === 'ok' ? 'Sincronizado en tiempo real' : state === 'loading' ? 'Sincronizando...' : 'Error de conexión';
-}
+// ── FIREBASE ─────────────────────────────────────────────────────
+function setSyncStatus(s){const dot=document.getElementById('sync-dot'),lbl=document.getElementById('sync-label');if(!dot)return;dot.className='sync-dot'+(s==='error'?' error':s==='loading'?' loading':'');lbl.textContent=s==='ok'?'Sincronizado en tiempo real':s==='loading'?'Sincronizando...':'Error de conexión';}
+async function saveFB(path,data){setSyncStatus('loading');try{await set(ref(db,path),data);setSyncStatus('ok');}catch(e){setSyncStatus('error');showStatus('Error al guardar');}}
 
-// Escuchar cambios en Firebase en tiempo real
-onValue(ref(db, 'feedlot/insumos'), snap => {
-  if (snap.exists()) {
-    insumos = snap.val();
-    renderAll();
-    setSyncStatus('ok');
-  }
-}, err => setSyncStatus('error'));
+onValue(ref(db,'feedlot/insumos'),snap=>{if(snap.exists()){const val=snap.val();insumos=Array.isArray(val)?val:Object.values(val);insumos=insumos.map(ins=>({desc:0,ars_manual:null,obs:'',...ins}));renderAll();renderMSSelect();}setSyncStatus('ok');},()=>setSyncStatus('error'));
+onValue(ref(db,'feedlot/dietas'),snap=>{if(snap.exists()){const val=snap.val();Object.keys(val).forEach(dk=>{if(val[dk].ms_manual===undefined)val[dk].ms_manual=null;});dietas=val;renderAll();}});
+onValue(ref(db,'feedlot/historial'),snap=>{historial=snap.exists()?Object.values(snap.val()):[];renderHistorial();renderGrafSelect();});
+onValue(ref(db,'feedlot/medicionesMS'),snap=>{medicionesMS=snap.exists()?Object.values(snap.val()):[];renderMedicionesMS();renderMSFiltro();renderMSChips();renderMSGraf();});
+onValue(ref(db,'feedlot/insCustom'),snap=>{insCustom=snap.exists()?Object.values(snap.val()):[];renderMSSelect();});
+onValue(ref(db,'feedlot/consumos'),snap=>{consumosMensuales=snap.exists()?snap.val():{};renderConsumosMeses();});
 
-onValue(ref(db, 'feedlot/dietas'), snap => {
-  if (snap.exists()) {
-    dietas = snap.val();
-    renderAll();
-  }
-});
-
-onValue(ref(db, 'feedlot/historial'), snap => {
-  if (snap.exists()) {
-    const raw = snap.val();
-    historial = Array.isArray(raw) ? raw : Object.values(raw);
-  } else {
-    historial = [];
-  }
-  renderHistorial();
-  renderGrafSelect();
-});
-
-async function saveToFirebase(path, data) {
-  setSyncStatus('loading');
-  try {
-    await set(ref(db, path), data);
-    setSyncStatus('ok');
-  } catch(e) {
-    setSyncStatus('error');
-    showStatus('❌ Error al guardar');
-  }
-}
-
-// ── TIPO DE CAMBIO ─────────────────────────────────────────────
-window.fetchTC = async function() {
-  document.getElementById('tc-badge').innerHTML = '<span class="spinner"></span>Cargando...';
-  try {
-    const r = await fetch('https://dolarapi.com/v1/dolares/oficial');
-    const d = await r.json();
-    tc = parseFloat(d.venta);
-    document.getElementById('tc-valor').textContent = '$' + tc.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2});
-    const now = new Date();
-    document.getElementById('tc-badge').innerHTML = '<span class="badge-live" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4caf50;margin-right:4px;vertical-align:middle"></span>BNA en vivo · ' + now.toLocaleTimeString('es-AR', {hour:'2-digit',minute:'2-digit'});
-  } catch(e) {
-    tc = null;
-    document.getElementById('tc-badge').innerHTML = '⚠️ Sin conexión';
-  }
+// ── TC ───────────────────────────────────────────────────────────
+window.fetchTC=async function(){
+  document.getElementById('tc-badge').innerHTML='<span class="spinner"></span>Cargando...';
+  try{const r=await fetch('https://dolarapi.com/v1/dolares/oficial');const d=await r.json();tc=parseFloat(d.venta);document.getElementById('tc-valor').textContent='$'+tc.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});const now=new Date();document.getElementById('tc-badge').innerHTML='<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4caf50;margin-right:4px;vertical-align:middle;animation:pulse 2s infinite"></span>BNA en vivo · '+now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});}
+  catch(e){tc=null;document.getElementById('tc-badge').innerHTML='Sin conexión';}
   renderAll();
 }
 
-// ── CÁLCULOS ───────────────────────────────────────────────────
-function getIns(id) { return insumos.find ? insumos.find(x=>x.id===id) : Object.values(insumos).find(x=>x.id===id); }
-
-function pTC(ins) {
-  if (!tc || !ins || ins.usd === 0) return 0;
-  return ins.tipo === 'grain' ? ins.usd * 0.85 * tc : ins.usd * tc;
+// ── CÁLCULOS ─────────────────────────────────────────────────────
+function getIns(id){return insumos.find(x=>x.id===id);}
+function pTC(ins){if(!ins)return 0;if(ins.ars_manual!==null&&ins.ars_manual!==undefined&&ins.ars_manual!=='')return parseFloat(ins.ars_manual)||0;if(!tc||ins.usd===0)return 0;const desc=(parseFloat(ins.desc)||0)/100;return ins.usd*(1-desc)*tc;}
+function pMS(ins){const p=pTC(ins);if(!p||!ins.ms||ins.ms===0)return 0;return p/(ins.ms/100);}
+function calcDieta(dk){
+  const d=dietas[dk];if(!d)return null;
+  const dins=Array.isArray(d.insumos)?d.insumos:Object.values(d.insumos);
+  let costTC=0,totalKgTC=d.consumo_tc,kgMSauto=0;
+  dins.forEach(di=>{const ins=getIns(di.id);if(!ins)return;const kgTCi=totalKgTC*(di.pct_tc/100);costTC+=kgTCi*(pTC(ins)/1000);kgMSauto+=kgTCi*(ins.ms/100);});
+  const msManual=d.ms_manual!==null&&d.ms_manual!==undefined&&d.ms_manual!=='';
+  const pctMS=msManual?parseFloat(d.ms_manual)/100:(totalKgTC>0?kgMSauto/totalKgTC:0);
+  const kgMS=totalKgTC*pctMS;
+  const costMS=pctMS>0?costTC/pctMS:0;
+  const pctMSauto=totalKgTC>0?kgMSauto/totalKgTC:0;
+  return{costTC,costMS,kgTC:totalKgTC,kgMS,pctMS:pctMS*100,pctMSauto:pctMSauto*100,msManual};
 }
 
-function pMS(ins) {
-  const p = pTC(ins);
-  if (!p || !ins.ms || ins.ms === 0) return 0;
-  return p / (ins.ms / 100);
-}
+function renderAll(){renderInsumos();renderDieta(currentDiet);renderExport();updateMetrics();}
+function updateMetrics(){['terminacion','recria','destete','reproductor'].forEach(dk=>{const r=calcDieta(dk);if(r){document.getElementById('m-'+dk).textContent='$'+Math.round(r.costTC).toLocaleString('es-AR')+'/día';document.getElementById('ms-'+dk).textContent='$'+Math.round(r.costMS).toLocaleString('es-AR')+'/día MS';}});}
 
-function calcDieta(dk) {
-  const d = dietas[dk];
-  if (!tc || !d) return null;
-  let costTC=0, costMS=0, kgMS=0;
-  const dins = Array.isArray(d.insumos) ? d.insumos : Object.values(d.insumos);
-  dins.forEach(di => {
-    const ins = getIns(di.id); if (!ins) return;
-    const kgTCi = d.consumo_tc * (di.pct_tc / 100);
-    const kgMSi = kgTCi * (ins.ms / 100);
-    kgMS += kgMSi;
-    costTC += kgTCi * (pTC(ins) / 1000);
-    costMS += kgMSi * (pMS(ins) / 1000);
-  });
-  return {costTC, costMS, kgTC: d.consumo_tc, kgMS};
-}
-
-// ── RENDER ALL ─────────────────────────────────────────────────
-function renderAll() {
-  renderInsumos();
-  renderDieta(currentDiet);
-  renderExport();
-  updateMetrics();
-}
-
-function updateMetrics() {
-  ['terminacion','recria','destete','reproductor'].forEach(dk => {
-    const r = calcDieta(dk);
-    if (r) {
-      document.getElementById('m-' + dk).textContent = '$' + Math.round(r.costTC).toLocaleString('es-AR') + '/día';
-      document.getElementById('ms-' + dk).textContent = '$' + Math.round(r.costMS).toLocaleString('es-AR') + '/día MS';
-    }
-  });
-}
-
-// ── RENDER INSUMOS ─────────────────────────────────────────────
-function tipoBadge(t) {
-  if (t==='grain') return '<span class="badge badge-grain">Commodity</span>';
-  if (t==='terc') return '<span class="badge badge-terc">Tercerizado</span>';
-  return '<span class="badge badge-other">Otro</span>';
-}
-
-function renderInsumos() {
-  const arr = Array.isArray(insumos) ? insumos : Object.values(insumos);
-  let html = '';
-  arr.forEach((ins, i) => {
-    const ptc = pTC(ins), pms = pMS(ins);
-    const fTn = v => v ? '$' + Math.round(v).toLocaleString('es-AR') : '—';
-    const fKg = v => v ? '$' + (v/1000).toFixed(2) : '—';
-    html += `<tr>
-      <td class="td-name">${ins.nombre}</td>
-      <td>${tipoBadge(ins.tipo)}</td>
-      <td><input type="number" value="${ins.usd}" step="0.5" min="0" onchange="updIns(${i},'usd',this.value)"/></td>
-      <td style="color:var(--text3);font-size:11px">${ins.tipo==='grain'?'15%':'—'}</td>
-      <td style="display:flex;align-items:center;gap:3px"><input type="number" value="${ins.ms}" step="0.1" min="0" max="100" onchange="updIns(${i},'ms',this.value)"/><span style="font-size:11px;color:var(--text3)">%</span></td>
-      <td class="td-accent">${fTn(ptc)}</td>
+// ── INSUMOS ──────────────────────────────────────────────────────
+function renderInsumos(){
+  let html='';
+  insumos.forEach((ins,i)=>{
+    const ptc=pTC(ins),pms=pMS(ins);
+    const fTn=v=>v?'$'+Math.round(v).toLocaleString('es-AR'):'—';
+    const fKg=v=>v?'$'+(v/1000).toFixed(2):'—';
+    const isManual=ins.ars_manual!==null&&ins.ars_manual!==undefined&&ins.ars_manual!=='';
+    const arsCell=isManual?`<input type="number" value="${ins.ars_manual}" step="100" min="0" onchange="updIns(${i},'ars_manual',this.value)" style="width:88px"/>`:`<span class="td-accent">${fTn(ptc)}</span>`;
+    html+=`<tr>
+      <td><input type="text" value="${ins.nombre}" onchange="updIns(${i},'nombre',this.value)" style="width:150px;font-weight:500;font-family:var(--sans)"/></td>
+      <td><select onchange="updIns(${i},'tipo',this.value)" style="font-size:11px;padding:2px 4px"><option value="grain"${ins.tipo==='grain'?' selected':''}>Commodity</option><option value="terc"${ins.tipo==='terc'?' selected':''}>Tercerizado</option><option value="other"${ins.tipo==='other'?' selected':''}>Otro</option></select></td>
+      <td><input type="number" value="${ins.usd}" step="0.5" min="0" onchange="updIns(${i},'usd',this.value)" ${isManual?'disabled style="opacity:.4"':''}/></td>
+      <td style="white-space:nowrap"><input type="number" value="${ins.desc||0}" step="1" min="0" max="100" onchange="updIns(${i},'desc',this.value)" style="width:48px" ${isManual?'disabled style="opacity:.4"':''}/><span style="font-size:11px;color:var(--text3)">%</span></td>
+      <td style="white-space:nowrap"><input type="number" value="${ins.ms}" step="0.1" min="0" max="100" onchange="updIns(${i},'ms',this.value)" style="width:58px"/><span style="font-size:11px;color:var(--text3)">%</span></td>
+      <td>${arsCell}</td>
+      <td><button class="toggle-ars${isManual?' manual':''}" onclick="toggleModoARS(${i})">${isManual?'✏️ manual':'⚙️ auto'}</button></td>
       <td class="td-num">${fKg(ptc)}</td>
       <td class="td-green">${fTn(pms)}</td>
       <td class="td-num">${fKg(pms)}</td>
+      <td><input type="text" value="${ins.obs||''}" placeholder="observaciones..." onchange="updIns(${i},'obs',this.value)" style="width:150px;font-family:var(--sans)"/></td>
+      <td><button class="btn btn-xs" style="color:var(--red)" onclick="eliminarInsumo(${i})">🗑</button></td>
     </tr>`;
   });
-  document.getElementById('tbody-insumos').innerHTML = html;
+  document.getElementById('tbody-insumos').innerHTML=html;
 }
+window.updIns=function(i,field,val){if(['usd','ms','desc','ars_manual'].includes(field))insumos[i][field]=val===''?null:(parseFloat(val)||0);else insumos[i][field]=val;renderAll();clearTimeout(window._saveTimer);window._saveTimer=setTimeout(()=>saveFB('feedlot/insumos',insumos),1200);}
+window.toggleModoARS=function(i){insumos[i].ars_manual=(insumos[i].ars_manual!==null&&insumos[i].ars_manual!==undefined&&insumos[i].ars_manual!=='')?null:(Math.round(pTC(insumos[i]))||0);renderAll();clearTimeout(window._saveTimer);window._saveTimer=setTimeout(()=>saveFB('feedlot/insumos',insumos),1200);}
+window.agregarInsumo=function(){insumos.push({id:'ins_'+Date.now(),nombre:'Nuevo insumo',tipo:'other',usd:0,ms:0,desc:0,ars_manual:null,obs:''});renderAll();saveFB('feedlot/insumos',insumos);}
+window.eliminarInsumo=function(i){if(!confirm('Eliminar "'+insumos[i].nombre+'"?'))return;insumos.splice(i,1);renderAll();saveFB('feedlot/insumos',insumos);}
 
-window.updIns = function(i, field, val) {
-  const arr = Array.isArray(insumos) ? insumos : Object.values(insumos);
-  arr[i][field] = parseFloat(val) || 0;
-  insumos = arr;
-  renderAll();
-  // Debounce save
-  clearTimeout(window._saveTimer);
-  window._saveTimer = setTimeout(() => saveToFirebase('feedlot/insumos', insumos), 1200);
-}
-
-// ── RENDER DIETA ───────────────────────────────────────────────
-function renderDieta(dk) {
-  const d = dietas[dk];
-  if (!d) return;
-  const r = calcDieta(dk);
-  const dins = Array.isArray(d.insumos) ? d.insumos : Object.values(d.insumos);
-  const sumPct = dins.reduce((a,x) => a + x.pct_tc, 0);
-  const sc = Math.abs(sumPct - 100) < 0.5 ? 'sum-ok' : 'sum-warn';
-
-  let rows = '';
-  dins.forEach((di, i) => {
-    const ins = getIns(di.id); if (!ins) return;
-    const kgTC = d.consumo_tc * (di.pct_tc / 100);
-    const kgMS = kgTC * (ins.ms / 100);
-    const ctc = pTC(ins) ? kgTC * (pTC(ins) / 1000) : 0;
-    const cms = pMS(ins) ? kgMS * (pMS(ins) / 1000) : 0;
-    rows += `<tr>
+// ── DIETAS ───────────────────────────────────────────────────────
+function renderDieta(dk){
+  const d=dietas[dk];if(!d)return;
+  const r=calcDieta(dk);
+  const dins=Array.isArray(d.insumos)?d.insumos:Object.values(d.insumos);
+  const sumPct=dins.reduce((a,x)=>a+x.pct_tc,0);
+  const sc=Math.abs(sumPct-100)<0.5?'sum-ok':'sum-warn';
+  const msManual=d.ms_manual!==null&&d.ms_manual!==undefined&&d.ms_manual!=='';
+  let rows='';
+  dins.forEach((di,i)=>{
+    const ins=getIns(di.id);if(!ins)return;
+    const kgTC=d.consumo_tc*(di.pct_tc/100),kgMS=kgTC*(ins.ms/100);
+    const ctc=pTC(ins)?kgTC*(pTC(ins)/1000):0,cms=pMS(ins)?kgMS*(pMS(ins)/1000):0;
+    rows+=`<tr>
       <td class="td-name">${ins.nombre}</td>
-      <td style="display:flex;align-items:center;gap:3px"><input type="number" value="${di.pct_tc}" step="0.1" min="0" max="100" style="width:60px" onchange="updDiet('${dk}',${i},this.value)"/><span style="font-size:11px;color:var(--text3)">%</span></td>
+      <td style="white-space:nowrap"><input type="number" value="${di.pct_tc}" step="0.1" min="0" max="100" style="width:58px" onchange="updDiet('${dk}',${i},this.value)"/>%</td>
       <td class="td-num">${kgTC.toFixed(2)} kg</td>
       <td class="td-num">${ins.ms}%</td>
       <td class="td-num">${kgMS.toFixed(2)} kg</td>
-      <td class="td-accent">${ctc ? '$' + Math.round(ctc).toLocaleString('es-AR') : '—'}</td>
-      <td class="td-green">${cms ? '$' + Math.round(cms).toLocaleString('es-AR') : '—'}</td>
+      <td class="td-accent">${ctc?'$'+Math.round(ctc).toLocaleString('es-AR'):'—'}</td>
+      <td class="td-green">${cms?'$'+Math.round(cms).toLocaleString('es-AR'):'—'}</td>
+      <td><button class="btn btn-xs" style="color:var(--red)" onclick="eliminarInsDieta('${dk}',${i})">🗑</button></td>
     </tr>`;
   });
 
-  document.getElementById('diet-content').innerHTML = `
+  const msModeHtml=`<div class="ds-card" style="${msManual?'border-color:var(--amber);background:var(--amber-light)':''}">
+    <div class="ds-label">% MS de la dieta</div>
+    <div class="ms-mode-toggle" style="margin-top:6px">
+      <button class="ms-mode-btn${!msManual?' active':''}" onclick="setMSMode('${dk}',false)">⚙️ Auto</button>
+      <button class="ms-mode-btn${msManual?' active':''}" onclick="setMSMode('${dk}',true)">✏️ Manual</button>
+    </div>
+    ${msManual?`<div style="display:flex;align-items:center;gap:4px;margin-top:6px"><input type="number" value="${d.ms_manual}" step="0.1" min="0" max="100" style="width:64px" onchange="updMSManual('${dk}',this.value)"/><span style="font-size:11px;color:var(--text3)">%</span></div><div style="font-size:10px;color:var(--amber);margin-top:4px">Auto: ${r?r.pctMSauto.toFixed(2):'—'}%</div>`
+    :`<div class="ds-value" style="margin-top:4px">${r?r.pctMSauto.toFixed(2):'—'}%</div><div class="ds-sub">calculado desde insumos</div>`}
+  </div>`;
+
+  document.getElementById('diet-content').innerHTML=`
   <div class="diet-summary">
     <div class="ds-card">
       <div class="ds-label">Consumo diario</div>
-      <div style="display:flex;align-items:center;gap:6px">
+      <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
         <input type="number" value="${d.consumo_tc}" step="0.5" min="0" style="width:70px;font-size:15px;font-weight:600" onchange="updConsumo('${dk}',this.value)"/>
         <span style="font-size:11px;color:var(--text3)">kg TC/animal/día</span>
       </div>
     </div>
-    <div class="ds-card">
-      <div class="ds-label">Suma proporciones</div>
-      <div class="ds-value ${sc}">${sumPct.toFixed(2)}%</div>
-    </div>
-    ${r ? `
-    <div class="ds-card">
-      <div class="ds-label">Costo/animal/día TC</div>
-      <div class="ds-value" style="color:var(--blue)">$${Math.round(r.costTC).toLocaleString('es-AR')}</div>
-      <div class="ds-sub">base tal cual</div>
-    </div>
-    <div class="ds-card">
-      <div class="ds-label">Costo/animal/día MS</div>
-      <div class="ds-value" style="color:var(--accent)">$${Math.round(r.costMS).toLocaleString('es-AR')}</div>
-      <div class="ds-sub">base materia seca</div>
-    </div>
-    <div class="ds-card">
-      <div class="ds-label">kg MS/animal/día</div>
-      <div class="ds-value">${r.kgMS.toFixed(2)}</div>
-      <div class="ds-sub">kg de MS consumida</div>
-    </div>` : ''}
+    <div class="ds-card"><div class="ds-label">Suma proporciones</div><div class="ds-value ${sc}">${sumPct.toFixed(2)}%</div></div>
+    ${msModeHtml}
+    ${r?`<div class="ds-card highlight-blue"><div class="ds-label">Costo/animal/día TC</div><div class="ds-value" style="color:var(--blue)">$${Math.round(r.costTC).toLocaleString('es-AR')}</div><div class="ds-sub">${r.kgTC.toFixed(1)} kg TC</div></div>
+    <div class="ds-card highlight-green"><div class="ds-label">Costo/animal/día MS</div><div class="ds-value" style="color:var(--accent)">$${Math.round(r.costMS).toLocaleString('es-AR')}</div><div class="ds-sub">${r.kgMS.toFixed(2)} kg MS · ${r.pctMS.toFixed(2)}%</div></div>`:''}
   </div>
   <div class="card">
+    <div class="card-header" style="padding:10px 16px">
+      <div class="card-title">Composición</div>
+      <button class="btn btn-sm" onclick="agregarInsDieta('${dk}')">➕ Agregar insumo</button>
+    </div>
     <div class="tbl-wrap">
-    <table>
-      <thead><tr>
-        <th>Insumo</th><th>% TC</th><th>kg TC/día</th>
-        <th>% MS ins.</th><th>kg MS/día</th>
-        <th>$/animal/día TC</th><th>$/animal/día MS</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
+      <table><thead><tr><th>Insumo</th><th>% TC</th><th>kg TC/día</th><th>% MS ins.</th><th>kg MS/día</th><th>$/animal/día TC</th><th>$/animal/día MS</th><th></th></tr></thead>
+      <tbody>${rows}</tbody></table>
     </div>
   </div>`;
 }
 
-window.updDiet = function(dk, i, val) {
-  const dins = Array.isArray(dietas[dk].insumos) ? dietas[dk].insumos : Object.values(dietas[dk].insumos);
-  dins[i].pct_tc = parseFloat(val) || 0;
-  dietas[dk].insumos = dins;
-  renderDieta(dk); updateMetrics();
-  clearTimeout(window._dietTimer);
-  window._dietTimer = setTimeout(() => saveToFirebase('feedlot/dietas', dietas), 1200);
+window.agregarInsDieta=function(dk){
+  const nombre=prompt('Nombre del insumo a agregar:');if(!nombre)return;
+  // buscar si existe en la lista
+  const ins=insumos.find(x=>x.nombre.toLowerCase()===nombre.toLowerCase());
+  const id=ins?ins.id:'ins_custom_'+Date.now();
+  if(!ins){
+    // agregar a insumos si no existe
+    insumos.push({id,nombre:nombre.trim(),tipo:'other',usd:0,ms:0,desc:0,ars_manual:null,obs:''});
+    saveFB('feedlot/insumos',insumos);
+  }
+  const dins=Array.isArray(dietas[dk].insumos)?dietas[dk].insumos:Object.values(dietas[dk].insumos);
+  dins.push({id,pct_tc:0});
+  dietas[dk].insumos=dins;
+  renderDieta(dk);updateMetrics();
+  saveFB('feedlot/dietas',dietas);
 }
 
-window.updConsumo = function(dk, val) {
-  dietas[dk].consumo_tc = parseFloat(val) || 0;
-  renderDieta(dk); updateMetrics();
-  clearTimeout(window._dietTimer);
-  window._dietTimer = setTimeout(() => saveToFirebase('feedlot/dietas', dietas), 1200);
+window.eliminarInsDieta=function(dk,i){
+  const dins=Array.isArray(dietas[dk].insumos)?dietas[dk].insumos:Object.values(dietas[dk].insumos);
+  if(!confirm('Eliminar "'+((getIns(dins[i].id)||{}).nombre||dins[i].id)+'" de la dieta?'))return;
+  dins.splice(i,1);dietas[dk].insumos=dins;
+  renderDieta(dk);updateMetrics();saveFB('feedlot/dietas',dietas);
 }
 
-window.switchDiet = function(dk) {
-  currentDiet = dk;
-  document.querySelectorAll('.diet-tab').forEach((t,i) => {
-    t.classList.toggle('active', ['terminacion','recria','destete','reproductor'][i] === dk);
+window.setMSMode=function(dk,manual){dietas[dk].ms_manual=manual?(()=>{const r=calcDieta(dk);return r?parseFloat(r.pctMSauto.toFixed(2)):0;})():null;renderDieta(dk);updateMetrics();clearTimeout(window._dietTimer);window._dietTimer=setTimeout(()=>saveFB('feedlot/dietas',dietas),1200);}
+window.updMSManual=function(dk,val){dietas[dk].ms_manual=parseFloat(val)||0;renderDieta(dk);updateMetrics();clearTimeout(window._dietTimer);window._dietTimer=setTimeout(()=>saveFB('feedlot/dietas',dietas),1200);}
+window.updDiet=function(dk,i,val){const dins=Array.isArray(dietas[dk].insumos)?dietas[dk].insumos:Object.values(dietas[dk].insumos);dins[i].pct_tc=parseFloat(val)||0;dietas[dk].insumos=dins;renderDieta(dk);updateMetrics();clearTimeout(window._dietTimer);window._dietTimer=setTimeout(()=>saveFB('feedlot/dietas',dietas),1200);}
+window.updConsumo=function(dk,val){dietas[dk].consumo_tc=parseFloat(val)||0;renderDieta(dk);updateMetrics();clearTimeout(window._dietTimer);window._dietTimer=setTimeout(()=>saveFB('feedlot/dietas',dietas),1200);}
+window.switchDiet=function(dk){currentDiet=dk;document.querySelectorAll('.diet-tab').forEach((t,i)=>t.classList.toggle('active',['terminacion','recria','destete','reproductor'][i]===dk));renderDieta(dk);}
+
+// ── CONSUMOS CATTLER ─────────────────────────────────────────────
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  if(!lines.length)return[];
+  // detectar separador
+  const sep=lines[0].includes(';')?';':',';
+  const headers=lines[0].split(sep).map(h=>h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line=>{
+    const vals=line.split(sep).map(v=>v.trim().replace(/^"|"$/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return obj;
+  }).filter(r=>Object.values(r).some(v=>v));
+}
+
+function parseFloat2(v){return parseFloat((v||'').toString().replace(',','.'))||0;}
+
+function procesarCSV(text){
+  const rows=parseCSV(text);
+  if(!rows.length)return null;
+  // detectar columnas clave
+  const r0=rows[0];
+  const colFecha=Object.keys(r0).find(k=>k.toLowerCase().includes('fecha'))||'Fecha';
+  const colIng=Object.keys(r0).find(k=>k.toLowerCase().includes('ingred'))||'Ingrediente';
+  const colKg=Object.keys(r0).find(k=>k.toLowerCase().includes('real') && k.toLowerCase().includes('kg') && !k.toLowerCase().includes('ms') && !k.toLowerCase().includes('cab'))||'Real (Kg)';
+  const colKgMS=Object.keys(r0).find(k=>k.toLowerCase().includes('real ms') && k.toLowerCase().includes('kg') && !k.toLowerCase().includes('cab'))||'Real MS (Kg)';
+  const colCosto=Object.keys(r0).find(k=>k.toLowerCase().includes('costo real'))||'Costo Real ($)';
+
+  // obtener período
+  const fecha=rows[0][colFecha]||'';
+
+  // agrupar por ingrediente sumando todos los corrales
+  const porIng={};
+  rows.forEach(row=>{
+    const ing=(row[colIng]||'').trim();if(!ing)return;
+    if(!porIng[ing])porIng[ing]={nombre:ing,kg:0,kgMS:0,costo:0};
+    porIng[ing].kg+=parseFloat2(row[colKg]);
+    porIng[ing].kgMS+=parseFloat2(row[colKgMS]);
+    porIng[ing].costo+=parseFloat2(row[colCosto]);
   });
-  renderDieta(dk);
+
+  return{fecha,insumos:porIng,filas:rows.length};
 }
 
-// ── SNAPSHOT ───────────────────────────────────────────────────
-window.guardarSnapshot = async function() {
-  if (!tc) { alert('Esperá que cargue el tipo de cambio.'); return; }
-  const arr = Array.isArray(insumos) ? insumos : Object.values(insumos);
-  const snap = {
-    fecha: new Date().toISOString(),
-    tc,
-    precios: arr.map(ins => ({id:ins.id, nombre:ins.nombre, usd:ins.usd, ms:ins.ms, ars_tc:pTC(ins), ars_ms:pMS(ins)})),
-    dietas: Object.keys(dietas).reduce((acc, dk) => {
-      const r = calcDieta(dk);
-      acc[dk] = {nombre: dietas[dk].nombre, consumo_tc: dietas[dk].consumo_tc, ...(r||{})};
-      return acc;
-    }, {})
+window.onDragOver=function(e){e.preventDefault();document.getElementById('drop-zone').classList.add('drag-over');}
+window.onDragLeave=function(){document.getElementById('drop-zone').classList.remove('drag-over');}
+window.onDrop=function(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)readCSVFile(f);}
+window.onFileSelect=function(e){const f=e.target.files[0];if(f)readCSVFile(f);e.target.value='';}
+
+function readCSVFile(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=e.target.result;
+    const result=procesarCSV(text);
+    if(!result){showImportStatus('error','No se pudo leer el archivo. Verificá que sea el CSV correcto de Cattler.');return;}
+    const key=result.fecha.replace('-','_');
+    consumosMensuales[key]={fecha:result.fecha,insumos:result.insumos,importado:new Date().toISOString()};
+    saveFB('feedlot/consumos',consumosMensuales);
+    mesMostrado=key;
+    showImportStatus('ok',`✓ Importado: ${result.fecha} — ${Object.keys(result.insumos).length} insumos, ${result.filas} filas procesadas`);
+    renderConsumosMeses();
+    renderConsumoDetalle(key);
+    renderConsumoGraficos();
   };
-  const newList = [...historial, snap];
-  await saveToFirebase('feedlot/historial', newList);
-  showStatus('✓ Snapshot guardado y sincronizado');
+  reader.readAsText(file,'UTF-8');
 }
 
-// ── HISTORIAL ──────────────────────────────────────────────────
-function renderHistorial() {
-  const el = document.getElementById('hist-content');
-  if (!el) return;
-  if (!historial.length) {
-    el.innerHTML = '<p style="color:var(--text3);font-size:13px;">Sin snapshots aún.</p>';
-    return;
-  }
-  const sorted = [...historial].reverse();
-  let html = '';
-  sorted.forEach((snap, si) => {
-    const d = new Date(snap.fecha);
-    const lbl = d.toLocaleString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-    html += `<div class="hist-snap">
-      <div class="hist-head">
-        <span class="hist-date">${lbl}</span>
-        <span class="hist-tc">TC $${snap.tc.toLocaleString('es-AR',{minimumFractionDigits:2})}</span>
-      </div>
-      <div class="hist-dietas">`;
-    Object.values(snap.dietas).forEach(dr => {
-      html += `<div class="hist-d">
-        <div class="hist-d-name">${dr.nombre}</div>
-        <div class="hist-d-tc">$${Math.round(dr.costTC||0).toLocaleString('es-AR')}/día TC</div>
-        <div class="hist-d-ms">$${Math.round(dr.costMS||0).toLocaleString('es-AR')}/día MS</div>
-      </div>`;
-    });
-    html += `</div>
-      <details style="margin-top:10px;font-size:11px">
-        <summary style="cursor:pointer;color:var(--text3)">Ver precios de insumos</summary>
-        <div style="margin-top:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:4px">`;
-    snap.precios.forEach((p, pi) => {
-      const prev = sorted[si+1]?.precios?.find(x=>x.id===p.id);
-      let diff = '';
-      if (prev && prev.usd && p.usd) {
-        const pct = ((p.usd - prev.usd)/prev.usd)*100;
-        if (Math.abs(pct)>0.1) diff = pct>0
-          ? ` <span style="color:var(--red);font-size:10px">▲${pct.toFixed(1)}%</span>`
-          : `<span style="color:var(--accent);font-size:10px">▼${Math.abs(pct).toFixed(1)}%</span>`;
-      }
-      html += `<div style="padding:3px 0;color:var(--text2);font-family:var(--mono)">${p.nombre}: <span style="color:var(--text)">U$S${p.usd}${diff}</span></div>`;
-    });
-    html += '</div></details></div>';
-  });
-  el.innerHTML = html;
+function showImportStatus(tipo,msg){
+  const el=document.getElementById('import-status');
+  el.style.display='block';
+  el.style.background=tipo==='ok'?'var(--accent-light)':'var(--red-light)';
+  el.style.color=tipo==='ok'?'var(--accent)':'var(--red)';
+  el.textContent=msg;
 }
 
-// ── GRÁFICOS ───────────────────────────────────────────────────
-window.renderGrafSelect = function() {
-  const tipo = document.getElementById('graf-tipo').value;
-  const sel = document.getElementById('graf-sel');
-  const prev = sel.value;
-  if (tipo === 'insumo') {
-    const arr = Array.isArray(insumos) ? insumos : Object.values(insumos);
-    sel.innerHTML = arr.map(ins=>`<option value="${ins.id}">${ins.nombre}</option>`).join('');
-  } else {
-    sel.innerHTML = Object.keys(dietas).map(dk=>`<option value="${dk}">${dietas[dk].nombre}</option>`).join('');
-  }
-  if (prev) sel.value = prev;
+function renderConsumosMeses(){
+  const meses=Object.keys(consumosMensuales).sort();
+  const card=document.getElementById('consumos-meses-card');
+  const grafCard=document.getElementById('consumos-graficos-card');
+  if(!meses.length){card.style.display='none';grafCard.style.display='none';return;}
+  card.style.display='block';
+  grafCard.style.display='block';
+  if(!mesMostrado||!consumosMensuales[mesMostrado])mesMostrado=meses[meses.length-1];
+  const tagsEl=document.getElementById('consumos-meses-tags');
+  tagsEl.innerHTML=meses.map(k=>{
+    const m=consumosMensuales[k];
+    return`<div class="consumo-mes-tag${k===mesMostrado?' active':''}" onclick="selMes('${k}')">
+      ${m.fecha}
+      <span class="consumo-mes-del" onclick="event.stopPropagation();eliminarMes('${k}')">✕</span>
+    </div>`;
+  }).join('');
+  renderConsumoDetalle(mesMostrado);
+  renderConsumoGraficos();
 }
 
-window.renderGraf = function() {
-  const tipo = document.getElementById('graf-tipo').value;
-  const selVal = document.getElementById('graf-sel').value;
-  const labels=[], d1=[], d2=[];
-  historial.forEach(snap => {
-    const d = new Date(snap.fecha);
-    labels.push(d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'}));
-    if (tipo==='insumo') {
-      const p = snap.precios.find(x=>x.id===selVal);
-      d1.push(p ? parseFloat(p.usd.toFixed(2)) : null);
-      d2.push(p && p.ars_tc ? Math.round(p.ars_tc) : null);
-    } else {
-      const dr = snap.dietas[selVal];
-      d1.push(dr ? Math.round(dr.costTC||0) : null);
-      d2.push(dr ? Math.round(dr.costMS||0) : null);
-    }
-  });
-  const ctx = document.getElementById('main-chart').getContext('2d');
-  if (chartInst) chartInst.destroy();
-  if (!labels.length) return;
-  chartInst = new Chart(ctx, {
-    type:'line',
-    data:{labels, datasets:[
-      {label:tipo==='insumo'?'USD/tn':'$/día TC', data:d1, borderColor:'#1a3f6b', backgroundColor:'rgba(26,63,107,0.07)', tension:0.3, yAxisID:'y1', pointRadius:5, pointBackgroundColor:'#1a3f6b'},
-      {label:tipo==='insumo'?'ARS/tn TC':'$/día MS', data:d2, borderColor:'#2d5a1b', backgroundColor:'rgba(45,90,27,0.07)', tension:0.3, yAxisID:'y2', borderDash:[6,3], pointRadius:5, pointBackgroundColor:'#2d5a1b'}
-    ]},
-    options:{responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        y1:{type:'linear',position:'left',ticks:{font:{size:10,family:'IBM Plex Mono'},callback:v=>tipo==='insumo'?'U$S'+v:'$'+Math.round(v).toLocaleString('es-AR')}},
-        y2:{type:'linear',position:'right',grid:{drawOnChartArea:false},ticks:{font:{size:10,family:'IBM Plex Mono'},callback:v=>'$'+Math.round(v).toLocaleString('es-AR')}},
-        x:{ticks:{autoSkip:false,maxRotation:45,font:{size:10,family:'IBM Plex Mono'}}}
-      }
-    }
-  });
+window.selMes=function(k){mesMostrado=k;renderConsumosMeses();}
+window.eliminarMes=function(k){if(!confirm('Eliminar mes '+consumosMensuales[k]?.fecha+'?'))return;delete consumosMensuales[k];saveFB('feedlot/consumos',consumosMensuales);}
+
+function getUnidad(nombre){
+  const n=(nombre||'').toUpperCase();
+  if(n.includes('BIOPREMIX'))return{size:25,label:'bolsa',labelPlural:'bolsas'};
+  if(n.includes('ROLLO'))return{size:360,label:'rollo',labelPlural:'rollos'};
+  return{size:30000,label:'camión',labelPlural:'camiones'};
 }
 
-// ── EXPORTAR ───────────────────────────────────────────────────
-function renderExport() {
-  const arr = Array.isArray(insumos) ? insumos : Object.values(insumos);
-  let html = '';
-  arr.forEach(ins => {
-    const ptc=pTC(ins), pms=pMS(ins);
-    html += `<tr>
+function renderConsumoDetalle(key){
+  const mes=consumosMensuales[key];if(!mes)return;
+  const el=document.getElementById('consumos-detalle');
+  const insList=Object.values(mes.insumos).sort((a,b)=>b.kg-a.kg);
+  const totalKg=insList.reduce((s,x)=>s+x.kg,0);
+  const totalCosto=insList.reduce((s,x)=>s+x.costo,0);
+  const totalUSD=tc&&tc>0?totalCosto/tc:null;
+
+  let rows=insList.map(ins=>{
+    const u=getUnidad(ins.nombre);
+    const cant=ins.kg/u.size;
+    const cantStr=cant>=10?Math.round(cant).toLocaleString('es-AR'):cant.toFixed(1).replace('.',',');
+    const unidadStr=`${cantStr} ${cant===1?u.label:u.labelPlural}`;
+    return`<tr>
       <td class="td-name">${ins.nombre}</td>
-      <td class="td-accent">${ptc?'$'+Math.round(ptc).toLocaleString('es-AR'):'—'}</td>
-      <td class="td-num">${ptc?'$'+(ptc/1000).toFixed(2):'—'}</td>
-      <td class="td-green">${pms?'$'+Math.round(pms).toLocaleString('es-AR'):'—'}</td>
-      <td class="td-num">${pms?'$'+(pms/1000).toFixed(2):'—'}</td>
-      <td><button class="copy-btn" onclick="copiarFila('${ins.nombre}',${ptc},${pms})">📋</button></td>
+      <td class="td-num">${Math.round(ins.kg).toLocaleString('es-AR')} kg</td>
+      <td class="td-num">${Math.round(ins.kgMS).toLocaleString('es-AR')} kg</td>
+      <td class="td-accent">$${Math.round(ins.costo).toLocaleString('es-AR')}</td>
+      <td class="td-num">${totalKg>0?(ins.kg/totalKg*100).toFixed(1):'—'}%</td>
+      <td class="td-num" style="color:var(--amber);font-weight:500">${unidadStr}</td>
+    </tr>`;
+  }).join('');
+
+  // fila de totales
+  const totalUSDStr=totalUSD?`U$S ${Math.round(totalUSD).toLocaleString('es-AR')}`:'—';
+  rows+=`<tr style="background:var(--surface2);font-weight:600;border-top:2px solid var(--border2)">
+    <td class="td-name" style="font-weight:700">TOTAL</td>
+    <td class="td-num" style="font-weight:700">${Math.round(totalKg).toLocaleString('es-AR')} kg</td>
+    <td></td>
+    <td style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--blue)">$${Math.round(totalCosto).toLocaleString('es-AR')}</td>
+    <td style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent)">${totalUSDStr}</td>
+    <td></td>
+  </tr>`;
+
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px">
+    <div class="ds-card highlight-blue"><div class="ds-label">Costo total ARS</div><div class="ds-value" style="color:var(--blue)">$${Math.round(totalCosto).toLocaleString('es-AR')}</div></div>
+    <div class="ds-card highlight-green"><div class="ds-label">Costo total USD</div><div class="ds-value" style="color:var(--accent)">${totalUSD?'U$S '+Math.round(totalUSD).toLocaleString('es-AR'):'Sin TC'}</div><div class="ds-sub">${tc?'TC $'+tc.toLocaleString('es-AR',{minimumFractionDigits:2}):'Actualizá el TC'}</div></div>
+    <div class="ds-card"><div class="ds-label">Total kg consumidos</div><div class="ds-value">${Math.round(totalKg).toLocaleString('es-AR')} kg</div></div>
+    <div class="ds-card"><div class="ds-label">Insumos distintos</div><div class="ds-value">${insList.length}</div></div>
+  </div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Insumo</th><th>Real (kg)</th><th>Real MS (kg)</th><th>Costo Real ($)</th><th>% total kg</th><th>Unidades</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function renderConsumoGraficos(){
+  const meses=Object.keys(consumosMensuales).sort();
+  if(!meses.length)return;
+  // recolectar todos los insumos
+  const todosIns=new Set();
+  meses.forEach(k=>Object.keys(consumosMensuales[k].insumos).forEach(n=>todosIns.add(n)));
+  const insArr=[...todosIns].sort();
+  const labels=meses.map(k=>consumosMensuales[k].fecha);
+
+  // datasets kg
+  const datasetsKg=insArr.map((nombre,i)=>({
+    label:nombre,
+    data:meses.map(k=>Math.round(consumosMensuales[k].insumos[nombre]?.kg||0)),
+    backgroundColor:CHART_COLORS[i%CHART_COLORS.length]+'cc',
+    borderColor:CHART_COLORS[i%CHART_COLORS.length],borderWidth:1
+  }));
+
+  // datasets costo
+  const datasetsCosto=insArr.map((nombre,i)=>({
+    label:nombre,
+    data:meses.map(k=>Math.round(consumosMensuales[k].insumos[nombre]?.costo||0)),
+    backgroundColor:CHART_COLORS[i%CHART_COLORS.length]+'cc',
+    borderColor:CHART_COLORS[i%CHART_COLORS.length],borderWidth:1
+  }));
+
+  const baseOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10,family:'IBM Plex Mono'},boxWidth:10}}},scales:{x:{stacked:true,ticks:{font:{size:10,family:'IBM Plex Mono'}}},y:{stacked:true,ticks:{font:{size:10,family:'IBM Plex Mono'}}}}};
+
+  const ctxKg=document.getElementById('chart-consumo-kg').getContext('2d');
+  if(chartConsumoKg)chartConsumoKg.destroy();
+  chartConsumoKg=new Chart(ctxKg,{type:'bar',data:{labels,datasets:datasetsKg},options:{...baseOpts,plugins:{...baseOpts.plugins,title:{display:true,text:'kg consumidos por insumo por mes',font:{size:12,family:'IBM Plex Mono'}}},scales:{...baseOpts.scales,y:{...baseOpts.scales.y,ticks:{...baseOpts.scales.y.ticks,callback:v=>v.toLocaleString('es-AR')+' kg'}}}}});
+
+  const ctxC=document.getElementById('chart-consumo-costo').getContext('2d');
+  if(chartConsumoCosto)chartConsumoCosto.destroy();
+  chartConsumoCosto=new Chart(ctxC,{type:'bar',data:{labels,datasets:datasetsCosto},options:{...baseOpts,plugins:{...baseOpts.plugins,title:{display:true,text:'Costo real por insumo por mes ($)',font:{size:12,family:'IBM Plex Mono'}}},scales:{...baseOpts.scales,y:{...baseOpts.scales.y,ticks:{...baseOpts.scales.y.ticks,callback:v=>'$'+v.toLocaleString('es-AR')}}}}});
+
+  // proyección
+  const tbody=document.getElementById('tbody-proyeccion');
+  let pRows='';
+  insArr.forEach((nombre,i)=>{
+    const vals=meses.map(k=>consumosMensuales[k].insumos[nombre]?.kg||0).filter(v=>v>0);
+    const costos=meses.map(k=>consumosMensuales[k].insumos[nombre]?.costo||0).filter(v=>v>0);
+    if(!vals.length)return;
+    const avgKg=vals.reduce((a,b)=>a+b,0)/vals.length;
+    const avgCosto=costos.length?costos.reduce((a,b)=>a+b,0)/costos.length:0;
+    pRows+=`<tr>
+      <td class="td-name"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${CHART_COLORS[i%CHART_COLORS.length]};margin-right:6px;vertical-align:middle"></span>${nombre}</td>
+      <td class="td-num">${vals.length} de ${meses.length}</td>
+      <td class="td-num">${Math.round(avgKg).toLocaleString('es-AR')} kg</td>
+      <td class="td-amber">${Math.round(avgKg*12).toLocaleString('es-AR')} kg</td>
+      <td class="td-num">${avgCosto?'$'+Math.round(avgCosto).toLocaleString('es-AR'):'—'}</td>
+      <td class="td-accent">${avgCosto?'$'+Math.round(avgCosto*12).toLocaleString('es-AR'):'—'}</td>
     </tr>`;
   });
-  const el = document.getElementById('tbody-export');
-  if (el) el.innerHTML = html;
+  if(tbody)tbody.innerHTML=pRows;
 }
 
-window.copiarFila = function(nombre,ptc,pms){
-  navigator.clipboard.writeText(`${nombre}\t$${Math.round(ptc).toLocaleString('es-AR')}\t$${(ptc/1000).toFixed(2)}\t$${Math.round(pms).toLocaleString('es-AR')}\t$${(pms/1000).toFixed(2)}`).catch(()=>{});
-  showStatus('✓ Copiado');
+window.switchConsumoGraf=function(tipo){
+  currentConsumoGraf=tipo;
+  document.querySelectorAll('.graf-subtab').forEach((t,i)=>t.classList.toggle('active',['kg','costo','proyeccion'][i]===tipo));
+  document.getElementById('consumo-graf-kg').style.display=tipo==='kg'?'block':'none';
+  document.getElementById('consumo-graf-costo').style.display=tipo==='costo'?'block':'none';
+  document.getElementById('consumo-graf-proyeccion').style.display=tipo==='proyeccion'?'block':'none';
 }
 
-window.copiarTodo = function(){
-  const arr = Array.isArray(insumos) ? insumos : Object.values(insumos);
-  let txt='Insumo\tARS/tn TC\tARS/kg TC\tARS/tn MS\tARS/kg MS\n';
-  arr.forEach(ins=>{
-    const ptc=pTC(ins)||0, pms=pMS(ins)||0;
-    txt+=`${ins.nombre}\t$${Math.round(ptc).toLocaleString('es-AR')}\t$${(ptc/1000).toFixed(2)}\t$${Math.round(pms).toLocaleString('es-AR')}\t$${(pms/1000).toFixed(2)}\n`;
-  });
-  navigator.clipboard.writeText(txt).then(()=>showStatus('✓ Tabla copiada al portapapeles')).catch(()=>{});
+// ── MEDICIONES MS ────────────────────────────────────────────────
+const CUSTOM_KEY='__custom__';
+function todosLosNombresMS(){const dePrecios=insumos.map(ins=>({key:ins.id,nombre:ins.nombre,isCustom:false}));const deCustom=insCustom.map(c=>({key:'custom_'+c.id,nombre:c.nombre,isCustom:true}));return[...dePrecios,...deCustom];}
+function renderMSSelect(){const sel=document.getElementById('ms-ins-sel');if(!sel)return;const todos=todosLosNombresMS();let html=todos.map(x=>`<option value="${x.key}">${x.isCustom?'★ ':''} ${x.nombre}</option>`).join('');html+=`<option value="${CUSTOM_KEY}" style="color:var(--amber);font-weight:500">✏️ Insumo personalizado...</option>`;sel.innerHTML=html;}
+window.onInsSelChange=function(){const sel=document.getElementById('ms-ins-sel');const wrap=document.getElementById('custom-ins-wrap');wrap.classList.toggle('show',sel.value===CUSTOM_KEY);}
+function renderMSFiltro(){const sel=document.getElementById('ms-filtro');if(!sel)return;const nombres=[...new Set(medicionesMS.map(m=>m.insNombre))].sort();const prev=sel.value;sel.innerHTML='<option value="">Todos</option>'+nombres.map(n=>`<option value="${n}"${n===prev?' selected':''}>${n}</option>`).join('');}
+
+window.agregarMedicionMS=function(){
+  const selVal=document.getElementById('ms-ins-sel').value;
+  const isCustomInput=selVal===CUSTOM_KEY;
+  let insId=null,insNombre='',isCustom=false;
+  if(isCustomInput){insNombre=document.getElementById('ms-ins-custom').value.trim();if(!insNombre){alert('Escribí el nombre del insumo personalizado.');return;}isCustom=true;const guardar=document.getElementById('ms-guardar-pred').checked;if(guardar){const yaExiste=insCustom.some(c=>c.nombre.toLowerCase()===insNombre.toLowerCase());if(!yaExiste){insCustom.push({id:'c_'+Date.now(),nombre:insNombre});saveFB('feedlot/insCustom',insCustom);showStatus('✓ "'+insNombre+'" guardado en la lista');}}}
+  else if(selVal.startsWith('custom_')){const c=insCustom.find(x=>x.id===selVal.replace('custom_',''));insNombre=c?c.nombre:selVal;isCustom=true;}
+  else{const ins=getIns(selVal);insId=selVal;insNombre=ins?ins.nombre:selVal;isCustom=false;}
+  const valor=parseFloat(document.getElementById('ms-valor').value);
+  const fecha=document.getElementById('ms-fecha').value;
+  if(isNaN(valor)||valor<=0||valor>100){alert('El % MS debe ser un valor entre 0 y 100.');return;}
+  if(!fecha){alert('Ingresá la fecha de la medición.');return;}
+  const med={id:'ms_'+Date.now(),insId,insNombre,isCustom,valor,fecha,proveedor:document.getElementById('ms-proveedor').value.trim(),costo:document.getElementById('ms-costo').value?parseFloat(document.getElementById('ms-costo').value):null,obs:document.getElementById('ms-obs').value.trim(),aplicado:false,fechaRegistro:new Date().toISOString()};
+  medicionesMS.push(med);saveFB('feedlot/medicionesMS',medicionesMS);
+  ['ms-valor','ms-proveedor','ms-costo','ms-obs','ms-ins-custom'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('ms-guardar-pred').checked=false;document.getElementById('ms-ins-sel').value=insumos[0]?.id||'';document.getElementById('custom-ins-wrap').classList.remove('show');
+  showStatus('✓ Medición registrada: '+insNombre+' — '+valor+'% MS');
+}
+window.aplicarMedicion=function(medId){const med=medicionesMS.find(m=>m.id===medId);if(!med||med.isCustom)return;const idx=insumos.findIndex(x=>x.id===med.insId);if(idx<0)return;insumos[idx].ms=med.valor;medicionesMS=medicionesMS.map(m=>m.id===medId?{...m,aplicado:true}:m);saveFB('feedlot/insumos',insumos);saveFB('feedlot/medicionesMS',medicionesMS);renderAll();showStatus('✓ MS de '+med.insNombre+' actualizada a '+med.valor+'%');}
+window.eliminarMedicion=function(medId){if(!confirm('Eliminar esta medición?'))return;medicionesMS=medicionesMS.filter(m=>m.id!==medId);saveFB('feedlot/medicionesMS',medicionesMS);}
+
+function renderMedicionesMS(){
+  const filtro=document.getElementById('ms-filtro')?.value||'';
+  const sorted=[...medicionesMS].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  const filtered=filtro?sorted.filter(m=>m.insNombre===filtro):sorted;
+  const empty=document.getElementById('ms-empty');const tbody=document.getElementById('tbody-ms');if(!tbody)return;
+  if(!filtered.length){tbody.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  const porIns={};sorted.forEach(m=>{if(!porIns[m.insNombre])porIns[m.insNombre]=[];porIns[m.insNombre].push(m);});
+  tbody.innerHTML=filtered.map(m=>{
+    const d=new Date(m.fecha+'T00:00:00');const lbl=d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const ins=m.insId?getIns(m.insId):null;const actualMS=ins?ins.ms:null;
+    const histIns=porIns[m.insNombre]||[];const idx=histIns.findIndex(x=>x.id===m.id);const prev=histIns[idx+1];
+    let tendencia='<span class="trend-eq">— primera</span>';
+    if(prev){const diff=m.valor-prev.valor;if(Math.abs(diff)<0.1)tendencia='<span class="trend-eq">→ igual</span>';else if(diff>0)tendencia=`<span class="trend-up">▲ +${diff.toFixed(2)}%</span>`;else tendencia=`<span class="trend-down">▼ ${diff.toFixed(2)}%</span>`;}
+    const accionBtn=m.isCustom?'<span style="font-size:10px;color:var(--text3)">personalizado</span>':(m.aplicado?'<span class="ms-applied">✓ aplicado</span>':`<button class="ms-apply-btn" onclick="aplicarMedicion('${m.id}')">Aplicar al cálculo</button>`);
+    return`<tr>
+      <td><span style="font-weight:600;font-size:12px${m.isCustom?';color:var(--amber)':''}">${m.insNombre}</span>${m.isCustom?' <span class="badge badge-custom">custom</span>':''}</td>
+      <td><span class="ms-pct">${m.valor}%</span></td>
+      <td>${tendencia}</td>
+      <td style="font-family:var(--mono);font-size:11px">${lbl}</td>
+      <td style="font-size:12px">${m.proveedor||'—'}</td>
+      <td class="td-num">${m.costo?'$'+Math.round(m.costo).toLocaleString('es-AR'):'—'}</td>
+      <td style="font-size:11px;color:var(--text2)">${m.obs||'—'}</td>
+      <td>${actualMS!==null&&!m.isCustom?`<span style="font-family:var(--mono);font-size:11px;color:var(--text3)">${actualMS}%</span>`:'—'}</td>
+      <td>${accionBtn}</td>
+      <td><button class="ms-del-btn" onclick="eliminarMedicion('${m.id}')">🗑</button></td>
+    </tr>`;
+  }).join('');
 }
 
-// ── NAVEGACIÓN ─────────────────────────────────────────────────
-window.switchTab = function(name) {
-  const names=['insumos','dietas','historial','graficos','exportar'];
+// ── GRÁFICO MS ───────────────────────────────────────────────────
+function getAllInsNombresConMeds(){return[...new Set(medicionesMS.map(m=>m.insNombre))].sort();}
+function renderMSChips(){
+  const nombres=getAllInsNombresConMeds();const container=document.getElementById('ms-chips');if(!container)return;
+  if(!nombres.length){container.innerHTML='<span style="font-size:12px;color:var(--text3)">Sin mediciones aún.</span>';return;}
+  container.innerHTML=nombres.map((nombre,i)=>{const color=CHART_COLORS[i%CHART_COLORS.length];const sel=msGrafSelected.has(nombre);return`<div class="ms-ins-chip${sel?' selected':''}" style="${sel?'background:'+color+';':''}" onclick="toggleMSChip('${nombre.replace(/'/g,"\\'").replace(/"/g,'\\"')}')"><span class="chip-dot" style="background:${color}"></span><span>${nombre}</span></div>`;}).join('');
+}
+window.toggleMSChip=function(nombre){if(msGrafSelected.has(nombre))msGrafSelected.delete(nombre);else msGrafSelected.add(nombre);renderMSChips();renderMSGraf();}
+window.msGrafSelAll=function(){getAllInsNombresConMeds().forEach(n=>msGrafSelected.add(n));renderMSChips();renderMSGraf();}
+window.msGrafSelNone=function(){msGrafSelected.clear();renderMSChips();renderMSGraf();}
+function renderMSGraf(){
+  const canvas=document.getElementById('ms-chart');const emptyEl=document.getElementById('ms-graf-empty');const legendEl=document.getElementById('ms-graf-legend');if(!canvas||!emptyEl||!legendEl)return;
+  const nombres=[...msGrafSelected];
+  if(!nombres.length||!medicionesMS.length){if(msChartInst){msChartInst.destroy();msChartInst=null;}canvas.style.display='none';emptyEl.style.display='block';legendEl.innerHTML='';return;}
+  canvas.style.display='block';emptyEl.style.display='none';
+  const medsFiltradas=medicionesMS.filter(m=>nombres.includes(m.insNombre));
+  const fechas=[...new Set(medsFiltradas.map(m=>m.fecha))].sort();
+  const allNombres=getAllInsNombresConMeds();
+  const datasets=nombres.map(nombre=>{const colorIdx=allNombres.indexOf(nombre);const color=CHART_COLORS[colorIdx%CHART_COLORS.length];const medsIns=medicionesMS.filter(m=>m.insNombre===nombre).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));return{label:nombre,data:fechas.map(f=>{const m=medsIns.find(x=>x.fecha===f);return m?parseFloat(m.valor.toFixed(2)):null;}),borderColor:color,backgroundColor:color+'18',tension:0.3,pointRadius:5,pointBackgroundColor:color,borderWidth:2,spanGaps:false};});
+  const labels=fechas.map(f=>{const d=new Date(f+'T00:00:00');return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});});
+  const ctx=canvas.getContext('2d');if(msChartInst)msChartInst.destroy();
+  msChartInst=new Chart(ctx,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y}% MS`}}},scales:{y:{min:0,max:100,ticks:{font:{size:10,family:'IBM Plex Mono'},callback:v=>v+'%'},title:{display:true,text:'% Materia Seca',font:{size:11,family:'IBM Plex Mono'}}},x:{ticks:{autoSkip:false,maxRotation:45,font:{size:10,family:'IBM Plex Mono'}}}}}});
+  legendEl.innerHTML=nombres.map(n=>{const colorIdx=allNombres.indexOf(n);const color=CHART_COLORS[colorIdx%CHART_COLORS.length];const ultimo=medicionesMS.filter(m=>m.insNombre===n).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha))[0];return`<span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:${color}"></span>${n}${ultimo?` — último: ${ultimo.valor}%`:''}</span>`;}).join('');
+}
+
+// ── SNAPSHOT PRECIOS ─────────────────────────────────────────────
+window.guardarSnapshot=async function(){
+  if(!tc){alert('Esperá que cargue el tipo de cambio.');return;}
+  const snap={id:'snap_'+Date.now(),fecha:new Date().toISOString(),tc,precios:insumos.map(ins=>({id:ins.id,nombre:ins.nombre,usd:ins.usd,ms:ins.ms,desc:ins.desc||0,ars_tc:pTC(ins),ars_ms:pMS(ins)})),dietas:Object.keys(dietas).reduce((acc,dk)=>{const r=calcDieta(dk);acc[dk]={nombre:dietas[dk].nombre,consumo_tc:dietas[dk].consumo_tc,...(r||{})};return acc;},{})};
+  await saveFB('feedlot/historial',[...historial,snap]);showStatus('✓ Snapshot guardado');
+}
+window.eliminarSnapshot=function(snapId){if(!confirm('¿Eliminar este snapshot?'))return;historial=historial.filter(s=>s.id!==snapId);saveFB('feedlot/historial',historial);renderHistorial();showStatus('✓ Snapshot eliminado');}
+
+function renderHistorial(){
+  const el=document.getElementById('hist-content');if(!el)return;
+  if(!historial.length){el.innerHTML='<p style="color:var(--text3);font-size:13px;">Sin snapshots aún.</p>';return;}
+  const sorted=[...historial].reverse();
+  el.innerHTML=sorted.map((snap,si)=>{
+    const snapId=snap.id||('snap_'+si);
+    const d=new Date(snap.fecha);const lbl=d.toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    let dietasHtml=Object.values(snap.dietas).map(dr=>`<div class="hist-d"><div class="hist-d-name">${dr.nombre}</div><div class="hist-d-tc">$${Math.round(dr.costTC||0).toLocaleString('es-AR')}/día TC</div><div class="hist-d-ms">$${Math.round(dr.costMS||0).toLocaleString('es-AR')}/día MS</div></div>`).join('');
+    let preciosHtml=snap.precios.map((p,pi)=>{const prev=sorted[si+1]?.precios?.find(x=>x.id===p.id);let diff='';if(prev&&prev.usd&&p.usd){const pct=((p.usd-prev.usd)/prev.usd)*100;if(Math.abs(pct)>0.1)diff=pct>0?` <span style="color:var(--red);font-size:10px">▲${pct.toFixed(1)}%</span>`:`<span style="color:var(--accent);font-size:10px">▼${Math.abs(pct).toFixed(1)}%</span>`;}return`<div style="padding:3px 0;color:var(--text2);font-family:var(--mono)">${p.nombre}: <span style="color:var(--text)">U$S${p.usd}${diff}</span></div>`;}).join('');
+    return`<div class="hist-snap">
+      <div class="hist-head"><span class="hist-date">${lbl}</span>
+      <div style="display:flex;align-items:center;gap:10px"><span class="hist-tc">TC $${snap.tc.toLocaleString('es-AR',{minimumFractionDigits:2})}</span><button class="snap-del-btn" onclick="eliminarSnapshot('${snapId}')">🗑 Eliminar</button></div></div>
+      <div class="hist-dietas">${dietasHtml}</div>
+      <details style="margin-top:10px;font-size:11px"><summary style="cursor:pointer;color:var(--text3)">Ver precios de insumos</summary>
+      <div style="margin-top:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:4px">${preciosHtml}</div></details>
+    </div>`;
+  }).join('');
+}
+
+// ── GRÁFICO PRECIOS ──────────────────────────────────────────────
+window.renderGrafSelect=function(){const tipo=document.getElementById('graf-tipo').value;const sel=document.getElementById('graf-sel');const prev=sel.value;if(tipo==='insumo')sel.innerHTML=insumos.map(ins=>`<option value="${ins.id}">${ins.nombre}</option>`).join('');else sel.innerHTML=Object.keys(dietas).map(dk=>`<option value="${dk}">${dietas[dk].nombre}</option>`).join('');if(prev)sel.value=prev;}
+window.renderGraf=function(){
+  const tipo=document.getElementById('graf-tipo').value;const selVal=document.getElementById('graf-sel').value;const labels=[],d1=[],d2=[];
+  historial.forEach(snap=>{const d=new Date(snap.fecha);labels.push(d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'}));if(tipo==='insumo'){const p=snap.precios.find(x=>x.id===selVal);d1.push(p?parseFloat(p.usd.toFixed(2)):null);d2.push(p&&p.ars_tc?Math.round(p.ars_tc):null);}else{const dr=snap.dietas[selVal];d1.push(dr?Math.round(dr.costTC||0):null);d2.push(dr?Math.round(dr.costMS||0):null);}});
+  const ctx=document.getElementById('main-chart').getContext('2d');if(chartInst)chartInst.destroy();if(!labels.length)return;
+  chartInst=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'TC',data:d1,borderColor:'#1a3f6b',backgroundColor:'rgba(26,63,107,0.07)',tension:0.3,yAxisID:'y1',pointRadius:5,pointBackgroundColor:'#1a3f6b'},{label:'MS',data:d2,borderColor:'#2d5a1b',backgroundColor:'rgba(45,90,27,0.07)',tension:0.3,yAxisID:'y2',borderDash:[6,3],pointRadius:5,pointBackgroundColor:'#2d5a1b'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y1:{type:'linear',position:'left',ticks:{font:{size:10,family:'IBM Plex Mono'},callback:v=>tipo==='insumo'?'U$S'+v:'$'+Math.round(v).toLocaleString('es-AR')}},y2:{type:'linear',position:'right',grid:{drawOnChartArea:false},ticks:{font:{size:10,family:'IBM Plex Mono'},callback:v=>'$'+Math.round(v).toLocaleString('es-AR')}},x:{ticks:{autoSkip:false,maxRotation:45,font:{size:10,family:'IBM Plex Mono'}}}}}});
+}
+
+// ── EXPORTAR ─────────────────────────────────────────────────────
+function renderExport(){let html='';insumos.forEach(ins=>{const ptc=pTC(ins),pms=pMS(ins);html+=`<tr><td class="td-name">${ins.nombre}</td><td class="td-accent">${ptc?'$'+Math.round(ptc).toLocaleString('es-AR'):'—'}</td><td class="td-num">${ptc?'$'+(ptc/1000).toFixed(2):'—'}</td><td class="td-green">${pms?'$'+Math.round(pms).toLocaleString('es-AR'):'—'}</td><td class="td-num">${pms?'$'+(pms/1000).toFixed(2):'—'}</td><td><button class="copy-btn" onclick="copiarFila('${ins.nombre}',${ptc},${pms})">📋</button></td></tr>`;});const el=document.getElementById('tbody-export');if(el)el.innerHTML=html;}
+window.copiarFila=function(nombre,ptc,pms){navigator.clipboard.writeText(`${nombre}\t$${Math.round(ptc).toLocaleString('es-AR')}\t$${(ptc/1000).toFixed(2)}\t$${Math.round(pms).toLocaleString('es-AR')}\t$${(pms/1000).toFixed(2)}`).catch(()=>{});showStatus('Copiado');}
+window.copiarTodo=function(){let txt='Insumo\tARS/tn TC\tARS/kg TC\tARS/tn MS\tARS/kg MS\n';insumos.forEach(ins=>{const ptc=pTC(ins)||0,pms=pMS(ins)||0;txt+=`${ins.nombre}\t$${Math.round(ptc).toLocaleString('es-AR')}\t$${(ptc/1000).toFixed(2)}\t$${Math.round(pms).toLocaleString('es-AR')}\t$${(pms/1000).toFixed(2)}\n`;});navigator.clipboard.writeText(txt).then(()=>showStatus('Tabla copiada')).catch(()=>{});}
+
+// ── NAVEGACIÓN ───────────────────────────────────────────────────
+window.switchTab=function(name){
+  const names=['insumos','dietas','consumos','ms-mediciones','ms-graficos','historial','graficos','exportar'];
   document.querySelectorAll('.nav-item').forEach((t,i)=>t.classList.toggle('active',names[i]===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
-  if (name==='graficos'){renderGrafSelect();renderGraf();}
-  if (name==='historial') renderHistorial();
-  if (name==='dietas') renderDieta(currentDiet);
-  if (name==='exportar') renderExport();
+  if(name==='graficos'){renderGrafSelect();renderGraf();}
+  if(name==='historial')renderHistorial();
+  if(name==='dietas')renderDieta(currentDiet);
+  if(name==='exportar')renderExport();
+  if(name==='ms-mediciones'){renderMSSelect();renderMedicionesMS();renderMSFiltro();}
+  if(name==='ms-graficos'){renderMSChips();renderMSGraf();}
+  if(name==='consumos'){renderConsumosMeses();if(Object.keys(consumosMensuales).length)renderConsumoGraficos();}
 }
 
-// ── UTILS ──────────────────────────────────────────────────────
-function showStatus(msg) {
-  const el = document.getElementById('status-bar');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'), 2500);
-}
+function showStatus(msg){const el=document.getElementById('status-bar');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
 
-// ── INIT ───────────────────────────────────────────────────────
-fetchTC();
-renderGrafSelect();
-
+// ── INIT ─────────────────────────────────────────────────────────
+const hoy=new Date();
+document.getElementById('ms-fecha').value=`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
+fetchTC();renderGrafSelect();renderHistorial();renderMSSelect();
 </script>
 </body>
 </html>
