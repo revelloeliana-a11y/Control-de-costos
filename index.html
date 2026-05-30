@@ -419,7 +419,6 @@ const DIETAS_DEFAULT={
 };
 
 let tc=null,insumos=JSON.parse(JSON.stringify(INSUMOS_DEFAULT)),dietas=JSON.parse(JSON.stringify(DIETAS_DEFAULT));
-let historialDietas={};
 let historial=[],medicionesMS=[],insCustom=[],consumosMensuales={};
 let currentDiet='terminacion',chartInst=null,msChartInst=null;
 let chartConsumoKg=null,chartConsumoCosto=null;
@@ -437,7 +436,6 @@ onValue(ref(db,'feedlot/historial'),snap=>{historial=snap.exists()?Object.values
 onValue(ref(db,'feedlot/medicionesMS'),snap=>{medicionesMS=snap.exists()?Object.values(snap.val()):[];renderMedicionesMS();renderMSFiltro();renderMSChips();renderMSGraf();});
 onValue(ref(db,'feedlot/insCustom'),snap=>{insCustom=snap.exists()?Object.values(snap.val()):[];renderMSSelect();});
 onValue(ref(db,'feedlot/consumos'),snap=>{consumosMensuales=snap.exists()?snap.val():{};renderConsumosMeses();});
-onValue(ref(db,'feedlot/historialDietas'),snap=>{historialDietas=snap.exists()?snap.val():{};renderHistDieta(currentDiet);});
 
 // ── TC ───────────────────────────────────────────────────────────
 window.fetchTC=async function(){
@@ -556,20 +554,7 @@ function renderDieta(dk){
       <table><thead><tr><th>Insumo</th><th>% TC</th><th>kg TC/día</th><th>% MS ins.</th><th>kg MS/día</th><th>$/animal/día TC</th><th>$/animal/día MS</th><th></th></tr></thead>
       <tbody>${rows}</tbody></table>
     </div>
-  </div>
-  <div class="card" style="margin-top:0">
-    <div class="card-header" style="padding:10px 16px;background:var(--surface2)">
-      <div class="card-title">💾 Guardar versión de esta dieta</div>
-    </div>
-    <div class="card-body" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
-      <div style="flex:1;min-width:200px">
-        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Observaciones (motivo del cambio)</div>
-        <input type="text" id="diet-obs-${dk}" placeholder="ej: Cambio por precio del maíz, nueva partida de silo..." style="width:100%;font-family:var(--sans);font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text)"/>
-      </div>
-      <button class="btn btn-primary btn-sm" onclick="guardarVersionDieta('${dk}')">💾 Guardar versión</button>
-    </div>
-  </div>
-  <div id="hist-dieta-${dk}"></div>\`;
+  </div>`;
 }
 
 window.agregarInsDieta=function(dk){
@@ -600,77 +585,7 @@ window.setMSMode=function(dk,manual){dietas[dk].ms_manual=manual?(()=>{const r=c
 window.updMSManual=function(dk,val){dietas[dk].ms_manual=parseFloat(val)||0;renderDieta(dk);updateMetrics();clearTimeout(window._dietTimer);window._dietTimer=setTimeout(()=>saveFB('feedlot/dietas',dietas),1200);}
 window.updDiet=function(dk,i,val){const dins=Array.isArray(dietas[dk].insumos)?dietas[dk].insumos:Object.values(dietas[dk].insumos);dins[i].pct_tc=parseFloat(val)||0;dietas[dk].insumos=dins;renderDieta(dk);updateMetrics();clearTimeout(window._dietTimer);window._dietTimer=setTimeout(()=>saveFB('feedlot/dietas',dietas),1200);}
 window.updConsumo=function(dk,val){dietas[dk].consumo_tc=parseFloat(val)||0;renderDieta(dk);updateMetrics();clearTimeout(window._dietTimer);window._dietTimer=setTimeout(()=>saveFB('feedlot/dietas',dietas),1200);}
-window.guardarVersionDieta=function(dk){
-  const obs=document.getElementById('diet-obs-'+dk)?.value?.trim()||'';
-  const d=dietas[dk];
-  if(!d)return;
-  const r=calcDieta(dk);
-  const dins=Array.isArray(d.insumos)?d.insumos:Object.values(d.insumos);
-  const version={
-    id:'dv_'+Date.now(),
-    fecha:new Date().toISOString(),
-    dk,nombre:d.nombre,
-    consumo_tc:d.consumo_tc,
-    ms_manual:d.ms_manual,
-    obs,
-    costTC:r?r.costTC:null,
-    kgMS:r?r.kgMS:null,
-    pctMS:r?r.pctMS:null,
-    insumos:dins.map(di=>{
-      const ins=getIns(di.id);
-      return{nombre:ins?ins.nombre:di.id,pct_tc:di.pct_tc,ms:ins?ins.ms:null};
-    })
-  };
-  if(!historialDietas[dk])historialDietas[dk]=[];
-  historialDietas[dk].push(version);
-  saveFB('feedlot/historialDietas',historialDietas);
-  if(document.getElementById('diet-obs-'+dk))document.getElementById('diet-obs-'+dk).value='';
-  showStatus('✓ Versión guardada: '+d.nombre);
-  renderHistDieta(dk);
-}
-
-function renderHistDieta(dk){
-  const el=document.getElementById('hist-dieta-'+dk);if(!el)return;
-  const versiones=historialDietas[dk]||[];
-  if(!versiones.length){el.innerHTML='';return;}
-  const sorted=[...versiones].reverse();
-  let html='<div class="card" style="margin-top:0;border-top:none;border-radius:0 0 var(--radius-lg) var(--radius-lg)">'
-    +'<div class="card-header" style="padding:10px 16px"><div class="card-title">📋 Historial de versiones</div></div>'
-    +'<div class="card-body" style="padding:0">';
-  sorted.forEach(function(v,vi){
-    const d=new Date(v.fecha);
-    const lbl=d.toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-    const isFirst=vi===sorted.length-1;
-    const bgStyle=vi===0?'background:var(--accent-light)':'';
-    const badgeActual=vi===0?'<span style="font-size:10px;background:var(--accent);color:#fff;padding:2px 7px;border-radius:4px;margin-left:8px;font-family:var(--mono)">actual</span>':'';
-    const badgePrimera=isFirst?'<span style="font-size:10px;background:var(--blue-light);color:var(--blue);padding:2px 7px;border-radius:4px;margin-left:4px;font-family:var(--mono)">primera</span>':'';
-    const costoStr=v.costTC?'<span style="color:var(--blue);font-family:var(--mono);font-size:12px">$'+Math.round(v.costTC).toLocaleString('es-AR')+'/día</span>':'';
-    const msStr=v.pctMS?'<span style="color:var(--accent);font-family:var(--mono);font-size:12px">'+v.pctMS.toFixed(1)+'% MS</span>':'';
-    const consumoStr=v.consumo_tc?'<span style="color:var(--text2);font-family:var(--mono);font-size:12px">'+v.consumo_tc+' kg TC</span>':'';
-    const obsStr=v.obs?'<div style="font-size:12px;color:var(--text2);background:var(--amber-light);padding:6px 10px;border-radius:var(--radius);margin-bottom:8px;border-left:3px solid var(--amber)">💬 '+v.obs+'</div>':'';
-    const insHtml=(v.insumos||[]).map(function(ins){
-      return '<div style="padding:3px 6px;background:var(--surface);border-radius:4px;border:0.5px solid var(--border)">'
-        +'<span style="font-weight:500">'+ins.nombre+'</span>'
-        +'<span style="color:var(--text3);font-family:var(--mono);font-size:10px;margin-left:6px">'+ins.pct_tc+'% TC'+(ins.ms?' · '+ins.ms+'% MS':'')+'</span>'
-        +'</div>';
-    }).join('');
-    html+='<div style="padding:14px 20px;border-bottom:0.5px solid var(--border);'+bgStyle+'">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">'
-      +'<div><span style="font-weight:600;font-size:13px">'+lbl+'</span>'+badgeActual+badgePrimera+'</div>'
-      +'<div style="display:flex;gap:12px">'+costoStr+msStr+consumoStr+'</div>'
-      +'</div>'
-      +obsStr
-      +'<details style="font-size:11px">'
-      +'<summary style="cursor:pointer;color:var(--text3);margin-bottom:6px">Ver composición</summary>'
-      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:4px;margin-top:6px">'+insHtml+'</div>'
-      +'</details>'
-      +'</div>';
-  });
-  html+='</div></div>';
-  el.innerHTML=html;
-}
-
-window.switchDiet=function(dk){currentDiet=dk;document.querySelectorAll('.diet-tab').forEach((t,i)=>t.classList.toggle('active',['terminacion','recria','destete','reproductor'][i]===dk));renderDieta(dk);renderHistDieta(dk);}
+window.switchDiet=function(dk){currentDiet=dk;document.querySelectorAll('.diet-tab').forEach((t,i)=>t.classList.toggle('active',['terminacion','recria','destete','reproductor'][i]===dk));renderDieta(dk);}
 
 // ── CONSUMOS CATTLER ─────────────────────────────────────────────
 function parseCSV(text){
@@ -730,7 +645,7 @@ function readCSVFile(file){
     consumosMensuales[key]={fecha:result.fecha,insumos:result.insumos,importado:new Date().toISOString()};
     saveFB('feedlot/consumos',consumosMensuales);
     mesMostrado=key;
-    showImportStatus('ok','✓ Importado: '+result.fecha+' — '+Object.keys(result.insumos).length+' insumos, '+result.filas+' filas procesadas');
+    showImportStatus('ok',`✓ Importado: ${result.fecha} — ${Object.keys(result.insumos).length} insumos, ${result.filas} filas procesadas`);
     renderConsumosMeses();
     renderConsumoDetalle(key);
     renderConsumoGraficos();
@@ -755,13 +670,12 @@ function renderConsumosMeses(){
   grafCard.style.display='block';
   if(!mesMostrado||!consumosMensuales[mesMostrado])mesMostrado=meses[meses.length-1];
   const tagsEl=document.getElementById('consumos-meses-tags');
-  tagsEl.innerHTML=meses.map(function(k){
+  tagsEl.innerHTML=meses.map(k=>{
     const m=consumosMensuales[k];
-    const isActive=k===mesMostrado?' active':'';
-    return '<div class="consumo-mes-tag'+isActive+'" onclick="selMes(\''+k+'\')">'
-      +m.fecha
-      +'<span class="consumo-mes-del" onclick="event.stopPropagation();eliminarMes(\''+k+'\')">✕</span>'
-      +'</div>';
+    return`<div class="consumo-mes-tag${k===mesMostrado?' active':''}" onclick="selMes('${k}')">
+      ${m.fecha}
+      <span class="consumo-mes-del" onclick="event.stopPropagation();eliminarMes('${k}')">✕</span>
+    </div>`;
   }).join('');
   renderConsumoDetalle(mesMostrado);
   renderConsumoGraficos();
@@ -780,55 +694,257 @@ function getUnidad(nombre){
 function renderConsumoDetalle(key){
   const mes=consumosMensuales[key];if(!mes)return;
   const el=document.getElementById('consumos-detalle');
-  const insList=Object.values(mes.insumos).sort(function(a,b){return b.kg-a.kg;});
-  const totalKg=insList.reduce(function(s,x){return s+x.kg;},0);
-  const totalCosto=insList.reduce(function(s,x){return s+x.costo;},0);
+  const insList=Object.values(mes.insumos).sort((a,b)=>b.kg-a.kg);
+  const totalKg=insList.reduce((s,x)=>s+x.kg,0);
+  const totalCosto=insList.reduce((s,x)=>s+x.costo,0);
   const totalUSD=tc&&tc>0?totalCosto/tc:null;
 
-  let rows=insList.map(function(ins){
+  let rows=insList.map(ins=>{
     const u=getUnidad(ins.nombre);
     const cant=ins.kg/u.size;
     const cantStr=cant>=10?Math.round(cant).toLocaleString('es-AR'):cant.toFixed(1).replace('.',',');
-    const unidadStr=cantStr+' '+(cant===1?u.label:u.labelPlural);
-    const pctStr=totalKg>0?(ins.kg/totalKg*100).toFixed(1):'—';
-    return '<tr>'
-      +'<td class="td-name">'+ins.nombre+'</td>'
-      +'<td class="td-num">'+Math.round(ins.kg).toLocaleString('es-AR')+' kg</td>'
-      +'<td class="td-num">'+Math.round(ins.kgMS).toLocaleString('es-AR')+' kg</td>'
-      +'<td class="td-accent">$'+Math.round(ins.costo).toLocaleString('es-AR')+'</td>'
-      +'<td class="td-num">'+pctStr+'%</td>'
-      +'<td class="td-num" style="color:var(--amber);font-weight:500">'+unidadStr+'</td>'
-      +'</tr>';
+    const unidadStr=`${cantStr} ${cant===1?u.label:u.labelPlural}`;
+    return`<tr>
+      <td class="td-name">${ins.nombre}</td>
+      <td class="td-num">${Math.round(ins.kg).toLocaleString('es-AR')} kg</td>
+      <td class="td-num">${Math.round(ins.kgMS).toLocaleString('es-AR')} kg</td>
+      <td class="td-accent">$${Math.round(ins.costo).toLocaleString('es-AR')}</td>
+      <td class="td-num">${totalKg>0?(ins.kg/totalKg*100).toFixed(1):'—'}%</td>
+      <td class="td-num" style="color:var(--amber);font-weight:500">${unidadStr}</td>
+    </tr>`;
   }).join('');
 
-  const totalUSDStr=totalUSD?'U$S '+Math.round(totalUSD).toLocaleString('es-AR'):'—';
-  rows+='<tr style="background:var(--surface2);font-weight:600;border-top:2px solid var(--border2)">'
-    +'<td class="td-name" style="font-weight:700">TOTAL</td>'
-    +'<td class="td-num" style="font-weight:700">'+Math.round(totalKg).toLocaleString('es-AR')+' kg</td>'
-    +'<td></td>'
-    +'<td style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--blue)">$'+Math.round(totalCosto).toLocaleString('es-AR')+'</td>'
-    +'<td style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent)">'+totalUSDStr+'</td>'
-    +'<td></td>'
-    +'</tr>';
+  // fila de totales
+  const totalUSDStr=totalUSD?`U$S ${Math.round(totalUSD).toLocaleString('es-AR')}`:'—';
+  rows+=`<tr style="background:var(--surface2);font-weight:600;border-top:2px solid var(--border2)">
+    <td class="td-name" style="font-weight:700">TOTAL</td>
+    <td class="td-num" style="font-weight:700">${Math.round(totalKg).toLocaleString('es-AR')} kg</td>
+    <td></td>
+    <td style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--blue)">$${Math.round(totalCosto).toLocaleString('es-AR')}</td>
+    <td style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent)">${totalUSDStr}</td>
+    <td></td>
+  </tr>`;
 
-  const tcStr='$'+Math.round(totalCosto).toLocaleString('es-AR');
-  const usdStr=totalUSD?'U$S '+Math.round(totalUSD).toLocaleString('es-AR'):'Sin TC';
-  const tcRef=tc?'TC $'+tc.toLocaleString('es-AR',{minimumFractionDigits:2}):'Actualizá el TC';
-  const kgStr=Math.round(totalKg).toLocaleString('es-AR')+' kg';
-
-  el.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px">'
-    +'<div class="ds-card highlight-blue"><div class="ds-label">Costo total ARS</div><div class="ds-value" style="color:var(--blue)">'+tcStr+'</div></div>'
-    +'<div class="ds-card highlight-green"><div class="ds-label">Costo total USD</div><div class="ds-value" style="color:var(--accent)">'+usdStr+'</div><div class="ds-sub">'+tcRef+'</div></div>'
-    +'<div class="ds-card"><div class="ds-label">Total kg consumidos</div><div class="ds-value">'+kgStr+'</div></div>'
-    +'<div class="ds-card"><div class="ds-label">Insumos distintos</div><div class="ds-value">'+insList.length+'</div></div>'
-    +'</div>'
-    +'<div class="tbl-wrap"><table>'
-    +'<thead><tr><th>Insumo</th><th>Real (kg)</th><th>Real MS (kg)</th><th>Costo Real ($)</th><th>% total kg</th><th>Unidades</th></tr></thead>'
-    +'<tbody>'+rows+'</tbody>'
-    +'</table></div>';
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px">
+    <div class="ds-card highlight-blue"><div class="ds-label">Costo total ARS</div><div class="ds-value" style="color:var(--blue)">$${Math.round(totalCosto).toLocaleString('es-AR')}</div></div>
+    <div class="ds-card highlight-green"><div class="ds-label">Costo total USD</div><div class="ds-value" style="color:var(--accent)">${totalUSD?'U$S '+Math.round(totalUSD).toLocaleString('es-AR'):'Sin TC'}</div><div class="ds-sub">${tc?'TC $'+tc.toLocaleString('es-AR',{minimumFractionDigits:2}):'Actualizá el TC'}</div></div>
+    <div class="ds-card"><div class="ds-label">Total kg consumidos</div><div class="ds-value">${Math.round(totalKg).toLocaleString('es-AR')} kg</div></div>
+    <div class="ds-card"><div class="ds-label">Insumos distintos</div><div class="ds-value">${insList.length}</div></div>
+  </div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Insumo</th><th>Real (kg)</th><th>Real MS (kg)</th><th>Costo Real ($)</th><th>% total kg</th><th>Unidades</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
 }
 
+function renderConsumoGraficos(){
+  const meses=Object.keys(consumosMensuales).sort();
+  if(!meses.length)return;
+  // recolectar todos los insumos
+  const todosIns=new Set();
+  meses.forEach(k=>Object.keys(consumosMensuales[k].insumos).forEach(n=>todosIns.add(n)));
+  const insArr=[...todosIns].sort();
+  const labels=meses.map(k=>consumosMensuales[k].fecha);
 
+  // datasets kg
+  const datasetsKg=insArr.map((nombre,i)=>({
+    label:nombre,
+    data:meses.map(k=>Math.round(consumosMensuales[k].insumos[nombre]?.kg||0)),
+    backgroundColor:CHART_COLORS[i%CHART_COLORS.length]+'cc',
+    borderColor:CHART_COLORS[i%CHART_COLORS.length],borderWidth:1
+  }));
 
+  // datasets costo
+  const datasetsCosto=insArr.map((nombre,i)=>({
+    label:nombre,
+    data:meses.map(k=>Math.round(consumosMensuales[k].insumos[nombre]?.costo||0)),
+    backgroundColor:CHART_COLORS[i%CHART_COLORS.length]+'cc',
+    borderColor:CHART_COLORS[i%CHART_COLORS.length],borderWidth:1
+  }));
 
+  const baseOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10,family:'IBM Plex Mono'},boxWidth:10}}},scales:{x:{stacked:true,ticks:{font:{size:10,family:'IBM Plex Mono'}}},y:{stacked:true,ticks:{font:{size:10,family:'IBM Plex Mono'}}}}};
 
+  const ctxKg=document.getElementById('chart-consumo-kg').getContext('2d');
+  if(chartConsumoKg)chartConsumoKg.destroy();
+  chartConsumoKg=new Chart(ctxKg,{type:'bar',data:{labels,datasets:datasetsKg},options:{...baseOpts,plugins:{...baseOpts.plugins,title:{display:true,text:'kg consumidos por insumo por mes',font:{size:12,family:'IBM Plex Mono'}}},scales:{...baseOpts.scales,y:{...baseOpts.scales.y,ticks:{...baseOpts.scales.y.ticks,callback:v=>v.toLocaleString('es-AR')+' kg'}}}}});
+
+  const ctxC=document.getElementById('chart-consumo-costo').getContext('2d');
+  if(chartConsumoCosto)chartConsumoCosto.destroy();
+  chartConsumoCosto=new Chart(ctxC,{type:'bar',data:{labels,datasets:datasetsCosto},options:{...baseOpts,plugins:{...baseOpts.plugins,title:{display:true,text:'Costo real por insumo por mes ($)',font:{size:12,family:'IBM Plex Mono'}}},scales:{...baseOpts.scales,y:{...baseOpts.scales.y,ticks:{...baseOpts.scales.y.ticks,callback:v=>'$'+v.toLocaleString('es-AR')}}}}});
+
+  // proyección
+  const tbody=document.getElementById('tbody-proyeccion');
+  let pRows='';
+  insArr.forEach((nombre,i)=>{
+    const vals=meses.map(k=>consumosMensuales[k].insumos[nombre]?.kg||0).filter(v=>v>0);
+    const costos=meses.map(k=>consumosMensuales[k].insumos[nombre]?.costo||0).filter(v=>v>0);
+    if(!vals.length)return;
+    const avgKg=vals.reduce((a,b)=>a+b,0)/vals.length;
+    const avgCosto=costos.length?costos.reduce((a,b)=>a+b,0)/costos.length:0;
+    pRows+=`<tr>
+      <td class="td-name"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${CHART_COLORS[i%CHART_COLORS.length]};margin-right:6px;vertical-align:middle"></span>${nombre}</td>
+      <td class="td-num">${vals.length} de ${meses.length}</td>
+      <td class="td-num">${Math.round(avgKg).toLocaleString('es-AR')} kg</td>
+      <td class="td-amber">${Math.round(avgKg*12).toLocaleString('es-AR')} kg</td>
+      <td class="td-num">${avgCosto?'$'+Math.round(avgCosto).toLocaleString('es-AR'):'—'}</td>
+      <td class="td-accent">${avgCosto?'$'+Math.round(avgCosto*12).toLocaleString('es-AR'):'—'}</td>
+    </tr>`;
+  });
+  if(tbody)tbody.innerHTML=pRows;
+}
+
+window.switchConsumoGraf=function(tipo){
+  currentConsumoGraf=tipo;
+  document.querySelectorAll('.graf-subtab').forEach((t,i)=>t.classList.toggle('active',['kg','costo','proyeccion'][i]===tipo));
+  document.getElementById('consumo-graf-kg').style.display=tipo==='kg'?'block':'none';
+  document.getElementById('consumo-graf-costo').style.display=tipo==='costo'?'block':'none';
+  document.getElementById('consumo-graf-proyeccion').style.display=tipo==='proyeccion'?'block':'none';
+}
+
+// ── MEDICIONES MS ────────────────────────────────────────────────
+const CUSTOM_KEY='__custom__';
+function todosLosNombresMS(){const dePrecios=insumos.map(ins=>({key:ins.id,nombre:ins.nombre,isCustom:false}));const deCustom=insCustom.map(c=>({key:'custom_'+c.id,nombre:c.nombre,isCustom:true}));return[...dePrecios,...deCustom];}
+function renderMSSelect(){const sel=document.getElementById('ms-ins-sel');if(!sel)return;const todos=todosLosNombresMS();let html=todos.map(x=>`<option value="${x.key}">${x.isCustom?'★ ':''} ${x.nombre}</option>`).join('');html+=`<option value="${CUSTOM_KEY}" style="color:var(--amber);font-weight:500">✏️ Insumo personalizado...</option>`;sel.innerHTML=html;}
+window.onInsSelChange=function(){const sel=document.getElementById('ms-ins-sel');const wrap=document.getElementById('custom-ins-wrap');wrap.classList.toggle('show',sel.value===CUSTOM_KEY);}
+function renderMSFiltro(){const sel=document.getElementById('ms-filtro');if(!sel)return;const nombres=[...new Set(medicionesMS.map(m=>m.insNombre))].sort();const prev=sel.value;sel.innerHTML='<option value="">Todos</option>'+nombres.map(n=>`<option value="${n}"${n===prev?' selected':''}>${n}</option>`).join('');}
+
+window.agregarMedicionMS=function(){
+  const selVal=document.getElementById('ms-ins-sel').value;
+  const isCustomInput=selVal===CUSTOM_KEY;
+  let insId=null,insNombre='',isCustom=false;
+  if(isCustomInput){insNombre=document.getElementById('ms-ins-custom').value.trim();if(!insNombre){alert('Escribí el nombre del insumo personalizado.');return;}isCustom=true;const guardar=document.getElementById('ms-guardar-pred').checked;if(guardar){const yaExiste=insCustom.some(c=>c.nombre.toLowerCase()===insNombre.toLowerCase());if(!yaExiste){insCustom.push({id:'c_'+Date.now(),nombre:insNombre});saveFB('feedlot/insCustom',insCustom);showStatus('✓ "'+insNombre+'" guardado en la lista');}}}
+  else if(selVal.startsWith('custom_')){const c=insCustom.find(x=>x.id===selVal.replace('custom_',''));insNombre=c?c.nombre:selVal;isCustom=true;}
+  else{const ins=getIns(selVal);insId=selVal;insNombre=ins?ins.nombre:selVal;isCustom=false;}
+  const valor=parseFloat(document.getElementById('ms-valor').value);
+  const fecha=document.getElementById('ms-fecha').value;
+  if(isNaN(valor)||valor<=0||valor>100){alert('El % MS debe ser un valor entre 0 y 100.');return;}
+  if(!fecha){alert('Ingresá la fecha de la medición.');return;}
+  const med={id:'ms_'+Date.now(),insId,insNombre,isCustom,valor,fecha,proveedor:document.getElementById('ms-proveedor').value.trim(),costo:document.getElementById('ms-costo').value?parseFloat(document.getElementById('ms-costo').value):null,obs:document.getElementById('ms-obs').value.trim(),aplicado:false,fechaRegistro:new Date().toISOString()};
+  medicionesMS.push(med);saveFB('feedlot/medicionesMS',medicionesMS);
+  ['ms-valor','ms-proveedor','ms-costo','ms-obs','ms-ins-custom'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('ms-guardar-pred').checked=false;document.getElementById('ms-ins-sel').value=insumos[0]?.id||'';document.getElementById('custom-ins-wrap').classList.remove('show');
+  showStatus('✓ Medición registrada: '+insNombre+' — '+valor+'% MS');
+}
+window.aplicarMedicion=function(medId){const med=medicionesMS.find(m=>m.id===medId);if(!med||med.isCustom)return;const idx=insumos.findIndex(x=>x.id===med.insId);if(idx<0)return;insumos[idx].ms=med.valor;medicionesMS=medicionesMS.map(m=>m.id===medId?{...m,aplicado:true}:m);saveFB('feedlot/insumos',insumos);saveFB('feedlot/medicionesMS',medicionesMS);renderAll();showStatus('✓ MS de '+med.insNombre+' actualizada a '+med.valor+'%');}
+window.eliminarMedicion=function(medId){if(!confirm('Eliminar esta medición?'))return;medicionesMS=medicionesMS.filter(m=>m.id!==medId);saveFB('feedlot/medicionesMS',medicionesMS);}
+
+function renderMedicionesMS(){
+  const filtro=document.getElementById('ms-filtro')?.value||'';
+  const sorted=[...medicionesMS].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  const filtered=filtro?sorted.filter(m=>m.insNombre===filtro):sorted;
+  const empty=document.getElementById('ms-empty');const tbody=document.getElementById('tbody-ms');if(!tbody)return;
+  if(!filtered.length){tbody.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  const porIns={};sorted.forEach(m=>{if(!porIns[m.insNombre])porIns[m.insNombre]=[];porIns[m.insNombre].push(m);});
+  tbody.innerHTML=filtered.map(m=>{
+    const d=new Date(m.fecha+'T00:00:00');const lbl=d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const ins=m.insId?getIns(m.insId):null;const actualMS=ins?ins.ms:null;
+    const histIns=porIns[m.insNombre]||[];const idx=histIns.findIndex(x=>x.id===m.id);const prev=histIns[idx+1];
+    let tendencia='<span class="trend-eq">— primera</span>';
+    if(prev){const diff=m.valor-prev.valor;if(Math.abs(diff)<0.1)tendencia='<span class="trend-eq">→ igual</span>';else if(diff>0)tendencia=`<span class="trend-up">▲ +${diff.toFixed(2)}%</span>`;else tendencia=`<span class="trend-down">▼ ${diff.toFixed(2)}%</span>`;}
+    const accionBtn=m.isCustom?'<span style="font-size:10px;color:var(--text3)">personalizado</span>':(m.aplicado?'<span class="ms-applied">✓ aplicado</span>':`<button class="ms-apply-btn" onclick="aplicarMedicion('${m.id}')">Aplicar al cálculo</button>`);
+    return`<tr>
+      <td><span style="font-weight:600;font-size:12px${m.isCustom?';color:var(--amber)':''}">${m.insNombre}</span>${m.isCustom?' <span class="badge badge-custom">custom</span>':''}</td>
+      <td><span class="ms-pct">${m.valor}%</span></td>
+      <td>${tendencia}</td>
+      <td style="font-family:var(--mono);font-size:11px">${lbl}</td>
+      <td style="font-size:12px">${m.proveedor||'—'}</td>
+      <td class="td-num">${m.costo?'$'+Math.round(m.costo).toLocaleString('es-AR'):'—'}</td>
+      <td style="font-size:11px;color:var(--text2)">${m.obs||'—'}</td>
+      <td>${actualMS!==null&&!m.isCustom?`<span style="font-family:var(--mono);font-size:11px;color:var(--text3)">${actualMS}%</span>`:'—'}</td>
+      <td>${accionBtn}</td>
+      <td><button class="ms-del-btn" onclick="eliminarMedicion('${m.id}')">🗑</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── GRÁFICO MS ───────────────────────────────────────────────────
+function getAllInsNombresConMeds(){return[...new Set(medicionesMS.map(m=>m.insNombre))].sort();}
+function renderMSChips(){
+  const nombres=getAllInsNombresConMeds();const container=document.getElementById('ms-chips');if(!container)return;
+  if(!nombres.length){container.innerHTML='<span style="font-size:12px;color:var(--text3)">Sin mediciones aún.</span>';return;}
+  container.innerHTML=nombres.map((nombre,i)=>{const color=CHART_COLORS[i%CHART_COLORS.length];const sel=msGrafSelected.has(nombre);return`<div class="ms-ins-chip${sel?' selected':''}" style="${sel?'background:'+color+';':''}" onclick="toggleMSChip('${nombre.replace(/'/g,"\\'").replace(/"/g,'\\"')}')"><span class="chip-dot" style="background:${color}"></span><span>${nombre}</span></div>`;}).join('');
+}
+window.toggleMSChip=function(nombre){if(msGrafSelected.has(nombre))msGrafSelected.delete(nombre);else msGrafSelected.add(nombre);renderMSChips();renderMSGraf();}
+window.msGrafSelAll=function(){getAllInsNombresConMeds().forEach(n=>msGrafSelected.add(n));renderMSChips();renderMSGraf();}
+window.msGrafSelNone=function(){msGrafSelected.clear();renderMSChips();renderMSGraf();}
+function renderMSGraf(){
+  const canvas=document.getElementById('ms-chart');const emptyEl=document.getElementById('ms-graf-empty');const legendEl=document.getElementById('ms-graf-legend');if(!canvas||!emptyEl||!legendEl)return;
+  const nombres=[...msGrafSelected];
+  if(!nombres.length||!medicionesMS.length){if(msChartInst){msChartInst.destroy();msChartInst=null;}canvas.style.display='none';emptyEl.style.display='block';legendEl.innerHTML='';return;}
+  canvas.style.display='block';emptyEl.style.display='none';
+  const medsFiltradas=medicionesMS.filter(m=>nombres.includes(m.insNombre));
+  const fechas=[...new Set(medsFiltradas.map(m=>m.fecha))].sort();
+  const allNombres=getAllInsNombresConMeds();
+  const datasets=nombres.map(nombre=>{const colorIdx=allNombres.indexOf(nombre);const color=CHART_COLORS[colorIdx%CHART_COLORS.length];const medsIns=medicionesMS.filter(m=>m.insNombre===nombre).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));return{label:nombre,data:fechas.map(f=>{const m=medsIns.find(x=>x.fecha===f);return m?parseFloat(m.valor.toFixed(2)):null;}),borderColor:color,backgroundColor:color+'18',tension:0.3,pointRadius:5,pointBackgroundColor:color,borderWidth:2,spanGaps:false};});
+  const labels=fechas.map(f=>{const d=new Date(f+'T00:00:00');return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});});
+  const ctx=canvas.getContext('2d');if(msChartInst)msChartInst.destroy();
+  msChartInst=new Chart(ctx,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y}% MS`}}},scales:{y:{min:0,max:100,ticks:{font:{size:10,family:'IBM Plex Mono'},callback:v=>v+'%'},title:{display:true,text:'% Materia Seca',font:{size:11,family:'IBM Plex Mono'}}},x:{ticks:{autoSkip:false,maxRotation:45,font:{size:10,family:'IBM Plex Mono'}}}}}});
+  legendEl.innerHTML=nombres.map(n=>{const colorIdx=allNombres.indexOf(n);const color=CHART_COLORS[colorIdx%CHART_COLORS.length];const ultimo=medicionesMS.filter(m=>m.insNombre===n).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha))[0];return`<span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:${color}"></span>${n}${ultimo?` — último: ${ultimo.valor}%`:''}</span>`;}).join('');
+}
+
+// ── SNAPSHOT PRECIOS ─────────────────────────────────────────────
+window.guardarSnapshot=async function(){
+  if(!tc){alert('Esperá que cargue el tipo de cambio.');return;}
+  const snap={id:'snap_'+Date.now(),fecha:new Date().toISOString(),tc,precios:insumos.map(ins=>({id:ins.id,nombre:ins.nombre,usd:ins.usd,ms:ins.ms,desc:ins.desc||0,ars_tc:pTC(ins),ars_ms:pMS(ins)})),dietas:Object.keys(dietas).reduce((acc,dk)=>{const r=calcDieta(dk);acc[dk]={nombre:dietas[dk].nombre,consumo_tc:dietas[dk].consumo_tc,...(r||{})};return acc;},{})};
+  await saveFB('feedlot/historial',[...historial,snap]);showStatus('✓ Snapshot guardado');
+}
+window.eliminarSnapshot=function(snapId){if(!confirm('¿Eliminar este snapshot?'))return;historial=historial.filter(s=>s.id!==snapId);saveFB('feedlot/historial',historial);renderHistorial();showStatus('✓ Snapshot eliminado');}
+
+function renderHistorial(){
+  const el=document.getElementById('hist-content');if(!el)return;
+  if(!historial.length){el.innerHTML='<p style="color:var(--text3);font-size:13px;">Sin snapshots aún.</p>';return;}
+  const sorted=[...historial].reverse();
+  el.innerHTML=sorted.map((snap,si)=>{
+    const snapId=snap.id||('snap_'+si);
+    const d=new Date(snap.fecha);const lbl=d.toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    let dietasHtml=Object.values(snap.dietas).map(dr=>`<div class="hist-d"><div class="hist-d-name">${dr.nombre}</div><div class="hist-d-tc">$${Math.round(dr.costTC||0).toLocaleString('es-AR')}/día TC</div><div class="hist-d-ms">$${Math.round(dr.costMS||0).toLocaleString('es-AR')}/día MS</div></div>`).join('');
+    let preciosHtml=snap.precios.map((p,pi)=>{const prev=sorted[si+1]?.precios?.find(x=>x.id===p.id);let diff='';if(prev&&prev.usd&&p.usd){const pct=((p.usd-prev.usd)/prev.usd)*100;if(Math.abs(pct)>0.1)diff=pct>0?` <span style="color:var(--red);font-size:10px">▲${pct.toFixed(1)}%</span>`:`<span style="color:var(--accent);font-size:10px">▼${Math.abs(pct).toFixed(1)}%</span>`;}return`<div style="padding:3px 0;color:var(--text2);font-family:var(--mono)">${p.nombre}: <span style="color:var(--text)">U$S${p.usd}${diff}</span></div>`;}).join('');
+    return`<div class="hist-snap">
+      <div class="hist-head"><span class="hist-date">${lbl}</span>
+      <div style="display:flex;align-items:center;gap:10px"><span class="hist-tc">TC $${snap.tc.toLocaleString('es-AR',{minimumFractionDigits:2})}</span><button class="snap-del-btn" onclick="eliminarSnapshot('${snapId}')">🗑 Eliminar</button></div></div>
+      <div class="hist-dietas">${dietasHtml}</div>
+      <details style="margin-top:10px;font-size:11px"><summary style="cursor:pointer;color:var(--text3)">Ver precios de insumos</summary>
+      <div style="margin-top:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:4px">${preciosHtml}</div></details>
+    </div>`;
+  }).join('');
+}
+
+// ── GRÁFICO PRECIOS ──────────────────────────────────────────────
+window.renderGrafSelect=function(){const tipo=document.getElementById('graf-tipo').value;const sel=document.getElementById('graf-sel');const prev=sel.value;if(tipo==='insumo')sel.innerHTML=insumos.map(ins=>`<option value="${ins.id}">${ins.nombre}</option>`).join('');else sel.innerHTML=Object.keys(dietas).map(dk=>`<option value="${dk}">${dietas[dk].nombre}</option>`).join('');if(prev)sel.value=prev;}
+window.renderGraf=function(){
+  const tipo=document.getElementById('graf-tipo').value;const selVal=document.getElementById('graf-sel').value;const labels=[],d1=[],d2=[];
+  historial.forEach(snap=>{const d=new Date(snap.fecha);labels.push(d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'}));if(tipo==='insumo'){const p=snap.precios.find(x=>x.id===selVal);d1.push(p?parseFloat(p.usd.toFixed(2)):null);d2.push(p&&p.ars_tc?Math.round(p.ars_tc):null);}else{const dr=snap.dietas[selVal];d1.push(dr?Math.round(dr.costTC||0):null);d2.push(dr?Math.round(dr.costMS||0):null);}});
+  const ctx=document.getElementById('main-chart').getContext('2d');if(chartInst)chartInst.destroy();if(!labels.length)return;
+  chartInst=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'TC',data:d1,borderColor:'#1a3f6b',backgroundColor:'rgba(26,63,107,0.07)',tension:0.3,yAxisID:'y1',pointRadius:5,pointBackgroundColor:'#1a3f6b'},{label:'MS',data:d2,borderColor:'#2d5a1b',backgroundColor:'rgba(45,90,27,0.07)',tension:0.3,yAxisID:'y2',borderDash:[6,3],pointRadius:5,pointBackgroundColor:'#2d5a1b'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y1:{type:'linear',position:'left',ticks:{font:{size:10,family:'IBM Plex Mono'},callback:v=>tipo==='insumo'?'U$S'+v:'$'+Math.round(v).toLocaleString('es-AR')}},y2:{type:'linear',position:'right',grid:{drawOnChartArea:false},ticks:{font:{size:10,family:'IBM Plex Mono'},callback:v=>'$'+Math.round(v).toLocaleString('es-AR')}},x:{ticks:{autoSkip:false,maxRotation:45,font:{size:10,family:'IBM Plex Mono'}}}}}});
+}
+
+// ── EXPORTAR ─────────────────────────────────────────────────────
+function renderExport(){let html='';insumos.forEach(ins=>{const ptc=pTC(ins),pms=pMS(ins);html+=`<tr><td class="td-name">${ins.nombre}</td><td class="td-accent">${ptc?'$'+Math.round(ptc).toLocaleString('es-AR'):'—'}</td><td class="td-num">${ptc?'$'+(ptc/1000).toFixed(2):'—'}</td><td class="td-green">${pms?'$'+Math.round(pms).toLocaleString('es-AR'):'—'}</td><td class="td-num">${pms?'$'+(pms/1000).toFixed(2):'—'}</td><td><button class="copy-btn" onclick="copiarFila('${ins.nombre}',${ptc},${pms})">📋</button></td></tr>`;});const el=document.getElementById('tbody-export');if(el)el.innerHTML=html;}
+window.copiarFila=function(nombre,ptc,pms){navigator.clipboard.writeText(`${nombre}\t$${Math.round(ptc).toLocaleString('es-AR')}\t$${(ptc/1000).toFixed(2)}\t$${Math.round(pms).toLocaleString('es-AR')}\t$${(pms/1000).toFixed(2)}`).catch(()=>{});showStatus('Copiado');}
+window.copiarTodo=function(){let txt='Insumo\tARS/tn TC\tARS/kg TC\tARS/tn MS\tARS/kg MS\n';insumos.forEach(ins=>{const ptc=pTC(ins)||0,pms=pMS(ins)||0;txt+=`${ins.nombre}\t$${Math.round(ptc).toLocaleString('es-AR')}\t$${(ptc/1000).toFixed(2)}\t$${Math.round(pms).toLocaleString('es-AR')}\t$${(pms/1000).toFixed(2)}\n`;});navigator.clipboard.writeText(txt).then(()=>showStatus('Tabla copiada')).catch(()=>{});}
+
+// ── NAVEGACIÓN ───────────────────────────────────────────────────
+window.switchTab=function(name){
+  const names=['insumos','dietas','consumos','ms-mediciones','ms-graficos','historial','graficos','exportar'];
+  document.querySelectorAll('.nav-item').forEach((t,i)=>t.classList.toggle('active',names[i]===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if(name==='graficos'){renderGrafSelect();renderGraf();}
+  if(name==='historial')renderHistorial();
+  if(name==='dietas')renderDieta(currentDiet);
+  if(name==='exportar')renderExport();
+  if(name==='ms-mediciones'){renderMSSelect();renderMedicionesMS();renderMSFiltro();}
+  if(name==='ms-graficos'){renderMSChips();renderMSGraf();}
+  if(name==='consumos'){renderConsumosMeses();if(Object.keys(consumosMensuales).length)renderConsumoGraficos();}
+}
+
+function showStatus(msg){const el=document.getElementById('status-bar');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
+
+// ── INIT ─────────────────────────────────────────────────────────
+const hoy=new Date();
+document.getElementById('ms-fecha').value=`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
+fetchTC();renderGrafSelect();renderHistorial();renderMSSelect();
+</script>
+</body>
+</html>
