@@ -154,11 +154,13 @@ select{font-family:var(--sa);font-size:12px;padding:4px 7px;border:1px solid var
 <div class="layout">
   <nav class="sidebar">
     <div class="nav-s">Principal</div>
+    <div class="nav-i" onclick="T('dash')">🏠 Dashboard</div>
     <div class="nav-i active" onclick="T('insumos')">📦 Insumos</div>
     <div class="nav-i" onclick="T('dietas')">🌾 Dietas</div>
     <div class="nav-s">Registros</div>
     <div class="nav-i" onclick="T('consumos')">📥 Consumos Cattler</div>
     <div class="nav-i" onclick="T('ms')">🧪 Mediciones MS</div>
+    <div class="nav-i" onclick="T('biod')">♻️ Biodigestor</div>
     <div class="nav-s">Análisis</div>
     <div class="nav-i" onclick="T('msgraf')">📊 Evolución MS</div>
     <div class="nav-i" onclick="T('hist')">📋 Historial precios</div>
@@ -167,6 +169,56 @@ select{font-family:var(--sa);font-size:12px;padding:4px 7px;border:1px solid var
     <div class="nav-i" onclick="T('exp')">📤 Exportar</div>
   </nav>
   <main class="content">
+
+    <div id="p-dash" class="panel">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:14px">
+        <div class="card">
+          <div class="ch"><div class="ct">💰 Costo actual por categoría</div></div>
+          <div class="cb" style="height:260px"><canvas id="d-cats"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">📈 Evolución del TC (BNA)</div></div>
+          <div class="cb" style="height:260px"><canvas id="d-tc"></canvas></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:14px">
+        <div class="card">
+          <div class="ch">
+            <div class="ct">🥧 Composición consumo mensual</div>
+            <select id="d-mes-sel" onchange="rDash()" style="font-size:11px;padding:3px 6px"></select>
+          </div>
+          <div class="cb" style="height:260px"><canvas id="d-comp"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">🏆 Top insumos por costo (mes actual)</div></div>
+          <div class="cb" style="height:260px"><canvas id="d-top"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch">
+          <div class="ct">📅 Consumo promedio por día</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-size:11px;color:var(--tx3)">Dividir por:</span>
+            <input type="number" id="d-dias-inp" min="1" max="365" step="1" style="width:60px;font-size:13px;font-weight:600" onchange="rDiasTab()" oninput="rDiasTab()"/>
+            <span style="font-size:11px;color:var(--tx3)">días</span>
+            <button class="btn btn-s" onclick="resetDias()" style="font-size:10px;padding:2px 7px">↺ días del mes</button>
+          </div>
+        </div>
+        <div class="cb">
+          <div class="tw"><table>
+            <thead><tr><th>Insumo</th><th>kg/mes</th><th>kg/día</th><th>kg MS/día</th><th>% del total</th></tr></thead>
+            <tbody id="d-dias-tb"></tbody>
+          </table></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">📊 Evolución costo diario por categoría</div></div>
+        <div class="cb" style="height:280px"><canvas id="d-evol"></canvas></div>
+      </div>
+      <div id="d-empty" style="display:none;text-align:center;padding:40px;color:var(--tx3);font-size:13px">
+        Guardá al menos un snapshot de precios y cargá consumos para ver el dashboard completo.
+      </div>
+    </div>
 
     <div id="p-insumos" class="panel active">
       <div class="card">
@@ -209,7 +261,7 @@ select{font-family:var(--sa);font-size:12px;padding:4px 7px;border:1px solid var
         </div>
       </div>
       <div class="card" id="cmc" style="display:none">
-        <div class="ch"><div class="ct">Meses importados</div></div>
+        <div class="ch"><div class="ct">Meses importados</div><div style="font-size:11px;color:var(--tx3)" id="cmc-fecha"></div></div>
         <div class="cb">
           <div id="cmt" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px"></div>
           <div id="cdet"></div>
@@ -230,6 +282,63 @@ select{font-family:var(--sa);font-size:12px;padding:4px 7px;border:1px solid var
             <div class="tw"><table><thead><tr><th>Insumo</th><th>Meses</th><th>kg/mes prom.</th><th>kg/año est.</th><th>Costo/mes prom.</th><th>Costo/año est.</th></tr></thead><tbody id="tbp"></tbody></table></div>
           </div>
         </div>
+      </div>
+      <div class="card" id="cra" style="display:none">
+        <div class="ch">
+          <div>
+            <div class="ct">📆 Resumen acumulado anual</div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:1px" id="cra-sub"></div>
+          </div>
+        </div>
+        <div class="cb">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;margin-bottom:16px" id="cra-cards"></div>
+          <div class="tw"><table>
+            <thead><tr><th>Insumo</th><th>kg totales</th><th>kg MS totales</th><th>Costo total ($)</th><th>% del total kg</th><th>Promedio mensual kg</th></tr></thead>
+            <tbody id="cra-tb"></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="p-biod" class="panel">
+      <div class="card">
+        <div class="ch"><div class="ct">♻️ Registro de consumo — Biodigestor</div></div>
+        <div class="cb">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;margin-bottom:14px">
+            <div class="fg">
+              <div class="fl">Insumo *</div>
+              <select id="bd-ins" style="width:100%"></select>
+            </div>
+            <div class="fg">
+              <div class="fl">kg consumidos *</div>
+              <input type="number" id="bd-kg" step="0.1" min="0" placeholder="ej: 500" style="width:100%"/>
+            </div>
+            <div class="fg">
+              <div class="fl">Fecha *</div>
+              <input type="date" id="bd-fecha" style="font-family:var(--mo);font-size:12px;padding:3px 6px;border:1px solid var(--bd2);border-radius:5px;width:100%"/>
+            </div>
+            <div class="fg">
+              <div class="fl">Observaciones</div>
+              <input type="text" id="bd-obs" placeholder="ej: lote de maíz..." style="font-family:var(--sa);width:100%"/>
+            </div>
+            <div class="fg">
+              <div class="fl">&nbsp;</div>
+              <button class="btn btn-p btn-s" onclick="addBD()">➕ Registrar</button>
+            </div>
+          </div>
+          <div id="bd-preview" style="font-size:12px;color:var(--tx3);font-family:var(--mo);padding:6px 10px;background:var(--sf2);border-radius:var(--r)">Seleccioná un insumo y cantidad para ver el costo estimado</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch">
+          <div class="ct">Historial de consumos</div>
+          <div style="font-size:11px;color:var(--tx3)" id="bd-total-lbl"></div>
+        </div>
+        <div class="tw"><table>
+          <thead><tr><th>Fecha</th><th>Insumo</th><th>kg</th><th>ARS/tn al momento</th><th>Costo total</th><th>Observaciones</th><th></th></tr></thead>
+          <tbody id="bd-tb"></tbody>
+        </table></div>
+        <div id="bd-empty" class="es" style="display:none">Sin registros aún.</div>
       </div>
     </div>
 
@@ -341,6 +450,8 @@ var DD={
   reproductor:{nombre:'Reproductor',consumo_tc:12,ms_manual:null,insumos:[{id:'rollo_maiz',pct_tc:27},{id:'silo_maiz_torta',pct_tc:44},{id:'expeller_soja',pct_tc:10.4},{id:'biopremix',pct_tc:0.6},{id:'agua',pct_tc:15},{id:'limp_espartillar',pct_tc:3}]}
 };
 var tc=null,ins=JSON.parse(JSON.stringify(ID)),dietas=JSON.parse(JSON.stringify(DD));
+var dCats=null,dTC=null,dComp=null,dTop=null,dEvol=null;
+var bdData=[];
 var hist=[],msData=[],cusData={},hdData={},icData=[];
 var curDiet='terminacion',chInst=null,msCh=null,ckInst=null,ccInst=null;
 var msSel=new Set(),curMes=null,curCG='kg';
@@ -356,6 +467,243 @@ db.ref('feedlot/medicionesMS').on('value',function(s){msData=s.exists()?Object.v
 db.ref('feedlot/insCustom').on('value',function(s){icData=s.exists()?Object.values(s.val()):[];rMSsel();});
 db.ref('feedlot/consumos').on('value',function(s){cusData=s.exists()?s.val():{};rMeses();});
 db.ref('feedlot/historialDietas').on('value',function(s){hdData=s.exists()?s.val():{};rHD(curDiet);});
+db.ref('feedlot/biodigestor').on('value',function(s){bdData=s.exists()?Object.values(s.val()):[];rBD();});
+
+function getDiasMes(curK){
+  if(!curK||!cusData[curK])return 30;
+  var fecha=cusData[curK].fecha||'';
+  if(!fecha)return 30;
+  var parts=fecha.split('-');
+  if(parts.length===2){var y=parseInt(parts[0]),m=parseInt(parts[1]);return new Date(y,m,0).getDate();}
+  return 30;
+}
+
+function resetDias(){
+  var sel=document.getElementById('d-mes-sel');
+  var curK=sel&&sel.value;
+  var inp=document.getElementById('d-dias-inp');
+  if(inp){inp.value=getDiasMes(curK);inp.dataset.autoset='1';}
+  rDiasTab();
+}
+
+function rDiasTab(){
+  var sel=document.getElementById('d-mes-sel');
+  var curK=sel&&sel.value;
+  var inp=document.getElementById('d-dias-inp');
+  var dias=parseInt(inp&&inp.value)||getDiasMes(curK);
+  if(dias<1)dias=1;
+  var tb=document.getElementById('d-dias-tb');
+  if(!tb||!curK||!cusData[curK])return;
+  var il=Object.values(cusData[curK].insumos).sort(function(a,b){return b.kg-a.kg;});
+  var tKg=il.reduce(function(s,x){return s+x.kg;},0);
+  var rows=il.map(function(ins){
+    var kgD=(ins.kg/dias).toFixed(1);
+    var kgMSD=(ins.kgMS/dias).toFixed(1);
+    var pct=tKg>0?(ins.kg/tKg*100).toFixed(1):'—';
+    return '<tr>'
+      +'<td class="tdn">'+ins.nombre+'</td>'
+      +'<td style="font-family:var(--mo);font-size:12px">'+Math.round(ins.kg).toLocaleString('es-AR')+' kg</td>'
+      +'<td class="tdc">'+parseFloat(kgD).toLocaleString('es-AR')+' kg</td>'
+      +'<td class="tdg">'+parseFloat(kgMSD).toLocaleString('es-AR')+' kg</td>'
+      +'<td style="font-family:var(--mo);font-size:12px">'+pct+'%</td>'
+      +'</tr>';
+  }).join('');
+  rows+='<tr style="background:var(--sf2);border-top:2px solid var(--bd2)">'
+    +'<td class="tdn" style="font-weight:700">TOTAL</td>'
+    +'<td style="font-family:var(--mo);font-size:12px;font-weight:700">'+Math.round(tKg).toLocaleString('es-AR')+' kg</td>'
+    +'<td class="tdc" style="font-weight:700">'+parseFloat((tKg/dias).toFixed(1)).toLocaleString('es-AR')+' kg</td>'
+    +'<td></td><td></td>'
+    +'</tr>';
+  tb.innerHTML=rows;
+}
+
+
+function rDash(){
+  // Mes selector
+  var ms=Object.keys(cusData).sort();
+  var sel=document.getElementById('d-mes-sel');
+  if(sel){
+    var pv=sel.value;
+    sel.innerHTML=ms.map(function(k){return'<option value="'+k+'"'+(k===pv?' selected':'')+'>'+( cusData[k].fecha||k)+'</option>';}).join('');
+    if(!sel.value&&ms.length)sel.value=ms[ms.length-1];
+  }
+  var hasSn=hist.length>0;
+  var hasCons=ms.length>0;
+
+  // 1. Costo actual por categoría (barras)
+  var catNames=['Terminación','Recría','Destete','Reproductor'];
+  var catKeys=['terminacion','recria','destete','reproductor'];
+  var catVals=catKeys.map(function(dk){var r=cD(dk);return r?Math.round(r.cTC):0;});
+  var cx1=document.getElementById('d-cats');
+  if(cx1){if(dCats)dCats.destroy();
+    dCats=new Chart(cx1.getContext('2d'),{type:'bar',
+      data:{labels:catNames,datasets:[{data:catVals,backgroundColor:CC.slice(0,4).map(function(c){return c+'cc';}),borderColor:CC.slice(0,4),borderWidth:1}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{ticks:{font:{size:10},callback:function(v){return '$'+v.toLocaleString('es-AR');}}}}}});}
+
+  // 2. Evolución TC desde snapshots
+  var tcLabels=hist.map(function(s){var d=new Date(s.fecha);return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'});});
+  var tcVals=hist.map(function(s){return s.tc;});
+  var cx2=document.getElementById('d-tc');
+  if(cx2){if(dTC)dTC.destroy();
+    dTC=new Chart(cx2.getContext('2d'),{type:'line',
+      data:{labels:tcLabels,datasets:[{data:tcVals,borderColor:'#1a3f6b',backgroundColor:'rgba(26,63,107,0.08)',tension:0.3,pointRadius:4,pointBackgroundColor:'#1a3f6b',fill:true}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{ticks:{font:{size:10},callback:function(v){return '$'+v.toLocaleString('es-AR');}}}}}});}
+
+  // 3. Composición consumo mensual (donut)
+  var curK=sel&&sel.value;
+  var cx3=document.getElementById('d-comp');
+  if(cx3&&curK&&cusData[curK]){
+    var il=Object.values(cusData[curK].insumos).sort(function(a,b){return b.kg-a.kg;});
+    var topN=il.slice(0,8);
+    var otros=il.slice(8).reduce(function(s,x){return s+x.kg;},0);
+    var cLabels=topN.map(function(x){return x.nombre;});
+    var cVals=topN.map(function(x){return Math.round(x.kg);});
+    if(otros>0){cLabels.push('Otros');cVals.push(Math.round(otros));}
+    if(dComp)dComp.destroy();
+    dComp=new Chart(cx3.getContext('2d'),{type:'doughnut',
+      data:{labels:cLabels,datasets:[{data:cVals,backgroundColor:CC.map(function(c){return c+'cc';}),borderColor:CC,borderWidth:1}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}}});}
+
+  // 4. Top insumos por costo (barras horizontales)
+  var cx4=document.getElementById('d-top');
+  if(cx4&&curK&&cusData[curK]){
+    var il2=Object.values(cusData[curK].insumos).sort(function(a,b){return b.costo-a.costo;}).slice(0,8);
+    if(dTop)dTop.destroy();
+    dTop=new Chart(cx4.getContext('2d'),{type:'bar',
+      data:{labels:il2.map(function(x){return x.nombre;}),datasets:[{data:il2.map(function(x){return Math.round(x.costo);}),backgroundColor:CC.slice(0,8).map(function(c){return c+'cc';}),borderColor:CC.slice(0,8),borderWidth:1}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{font:{size:10},callback:function(v){return '$'+v.toLocaleString('es-AR');}}},y:{ticks:{font:{size:10}}}}}});}
+
+  // tabla promedio diario — setear días del mes y llamar rDiasTab
+  if(curK&&cusData[curK]){
+    var fecha2=cusData[curK].fecha||'';
+    var diasMes=30;
+    if(fecha2){var parts=fecha2.split('-');if(parts.length===2){var y=parseInt(parts[0]),m2=parseInt(parts[1]);diasMes=new Date(y,m2,0).getDate();}}
+    var inp=document.getElementById('d-dias-inp');
+    if(inp&&(!inp.value||inp.dataset.autoset==='1')){inp.value=diasMes;inp.dataset.autoset='1';}
+    rDiasTab();
+  }
+
+  // 5. Evolución costo diario por categoría desde snapshots
+  var cx5=document.getElementById('d-evol');
+  if(cx5&&hist.length>1){
+    var evLabels=hist.map(function(s){var d=new Date(s.fecha);return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'});});
+    var evDs=catKeys.map(function(dk,i){return{label:dietas[dk]&&dietas[dk].nombre||dk,data:hist.map(function(s){return s.dietas&&s.dietas[dk]?Math.round(s.dietas[dk].cTC||0):null;}),borderColor:CC[i],backgroundColor:CC[i]+'15',tension:0.3,pointRadius:4,pointBackgroundColor:CC[i],fill:false};});
+    if(dEvol)dEvol.destroy();
+    dEvol=new Chart(cx5.getContext('2d'),{type:'line',
+      data:{labels:evLabels,datasets:evDs},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},
+        scales:{y:{ticks:{font:{size:10},callback:function(v){return '$'+v.toLocaleString('es-AR');}}},x:{ticks:{autoSkip:false,maxRotation:45,font:{size:10}}}}}});}
+}
+
+
+function rBDsel(){
+  var sel=document.getElementById('bd-ins');if(!sel)return;
+  sel.innerHTML=ins.filter(function(i){return i.usd>0||i.ars_manual;}).map(function(i){return'<option value="'+i.id+'">'+i.nombre+'</option>';}).join('');
+  bdPreview();
+}
+
+function bdPreview(){
+  var sel=document.getElementById('bd-ins');
+  var kgEl=document.getElementById('bd-kg');
+  var prev=document.getElementById('bd-preview');
+  if(!sel||!kgEl||!prev)return;
+  var i2=gI(sel.value);
+  var kg=parseFloat(kgEl.value)||0;
+  if(!i2||!kg){prev.textContent='Seleccioná un insumo y cantidad para ver el costo estimado';prev.style.color='var(--tx3)';return;}
+  var ptc=pTC(i2);
+  var costo=kg*(ptc/1000);
+  prev.textContent='Costo estimado: $'+Math.round(costo).toLocaleString('es-AR')+' (ARS '+ptc.toLocaleString('es-AR',{minimumFractionDigits:0})+'/tn al TC del día)';
+  prev.style.color='var(--ac)';
+}
+
+function addBD(){
+  var sel=document.getElementById('bd-ins');
+  var kg=parseFloat(document.getElementById('bd-kg').value);
+  var fecha=document.getElementById('bd-fecha').value;
+  var obs=document.getElementById('bd-obs').value.trim();
+  if(!sel.value||isNaN(kg)||kg<=0){alert('Completá insumo y kg.');return;}
+  if(!fecha){alert('Ingresá la fecha.');return;}
+  var i2=gI(sel.value);
+  var ptc=pTC(i2)||0;
+  var costo=kg*(ptc/1000);
+  var reg={id:'bd'+Date.now(),insId:sel.value,insNombre:i2?i2.nombre:sel.value,kg:kg,fecha:fecha,ars_tn:Math.round(ptc),costo:Math.round(costo),obs:obs,fechaRegistro:new Date().toISOString()};
+  bdData.push(reg);
+  FB('feedlot/biodigestor',bdData);
+  document.getElementById('bd-kg').value='';
+  document.getElementById('bd-obs').value='';
+  status2('✓ Registrado: '+reg.insNombre+' — '+kg+' kg — $'+Math.round(costo).toLocaleString('es-AR'));
+  rBD();
+}
+
+function delBD2(btn){delBD(btn.dataset.id);}
+function delBD(id){
+  if(!confirm('Eliminar este registro?'))return;
+  bdData=bdData.filter(function(x){return x.id!==id;});
+  FB('feedlot/biodigestor',bdData);rBD();
+}
+
+function rBD(){
+  var tb=document.getElementById('bd-tb');
+  var emp=document.getElementById('bd-empty');
+  var lbl=document.getElementById('bd-total-lbl');
+  if(!tb)return;
+  if(!bdData.length){tb.innerHTML='';if(emp)emp.style.display='block';if(lbl)lbl.textContent='';return;}
+  if(emp)emp.style.display='none';
+  var sorted=bdData.slice().sort(function(a,b){return new Date(b.fecha)-new Date(a.fecha);});
+  var tKg=bdData.reduce(function(s,x){return s+x.kg;},0);
+  var tCosto=bdData.reduce(function(s,x){return s+x.costo;},0);
+  if(lbl)lbl.textContent='Total: '+Math.round(tKg).toLocaleString('es-AR')+' kg · $'+Math.round(tCosto).toLocaleString('es-AR');
+  tb.innerHTML=sorted.map(function(r){
+    var d=new Date(r.fecha+'T00:00:00');
+    var lbl2=d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+    return'<tr>'
+      +'<td style="font-family:var(--mo);font-size:11px">'+lbl2+'</td>'
+      +'<td class="tdn">'+r.insNombre+'</td>'
+      +'<td style="font-family:var(--mo);font-size:12px">'+r.kg.toLocaleString('es-AR')+' kg</td>'
+      +'<td style="font-family:var(--mo);font-size:12px;color:var(--tx2)">$'+Math.round(r.ars_tn).toLocaleString('es-AR')+'/tn</td>'
+      +'<td class="tdc">$'+Math.round(r.costo).toLocaleString('es-AR')+'</td>'
+      +'<td style="font-size:11px;color:var(--tx2)">'+( r.obs||'—')+'</td>'
+      +'<td><button class="msdb" data-id="'+r.id+'" onclick="delBD2(this)">🗑</button></td>'
+      +'</tr>';
+  }).join('');
+}
+function delBD2(btn){delBD(btn.dataset.id);}
+function delBD(id){
+  if(!confirm('Eliminar este registro?'))return;
+  bdData=bdData.filter(function(x){return x.id!==id;});
+  FB('feedlot/biodigestor',bdData);rBD();
+}
+
+function rBD(){
+  var tb=document.getElementById('bd-tb');
+  var emp=document.getElementById('bd-empty');
+  var lbl=document.getElementById('bd-total-lbl');
+  if(!tb)return;
+  if(!bdData.length){tb.innerHTML='';if(emp)emp.style.display='block';if(lbl)lbl.textContent='';return;}
+  if(emp)emp.style.display='none';
+  var sorted=bdData.slice().sort(function(a,b){return new Date(b.fecha)-new Date(a.fecha);});
+  var tKg=bdData.reduce(function(s,x){return s+x.kg;},0);
+  var tCosto=bdData.reduce(function(s,x){return s+x.costo;},0);
+  if(lbl)lbl.textContent='Total: '+Math.round(tKg).toLocaleString('es-AR')+' kg · $'+Math.round(tCosto).toLocaleString('es-AR');
+  tb.innerHTML=sorted.map(function(r){
+    var d=new Date(r.fecha+'T00:00:00');
+    var lbl2=d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+    return'<tr>'
+      +'<td style="font-family:var(--mo);font-size:11px">'+lbl2+'</td>'
+      +'<td class="tdn">'+r.insNombre+'</td>'
+      +'<td style="font-family:var(--mo);font-size:12px">'+r.kg.toLocaleString('es-AR')+' kg</td>'
+      +'<td style="font-family:var(--mo);font-size:12px;color:var(--tx2)">$'+Math.round(r.ars_tn).toLocaleString('es-AR')+'/tn</td>'
+      +'<td class="tdc">$'+Math.round(r.costo).toLocaleString('es-AR')+'</td>'
+      +'<td style="font-size:11px;color:var(--tx2)">'+( r.obs||'—')+'</td>'
+      +'<td><button class="msdb" data-id="'+r.id+'" onclick="delBD2(this)">🗑</button></td>'
+      +'</tr>';
+  }).join('');
+}
+
 
 function fetchTC(){
   document.getElementById('tcb').innerHTML='<span class="sp"></span>Cargando...';
@@ -533,15 +881,135 @@ function rHD(dk){
 function SD(dk){curDiet=dk;document.querySelectorAll('.dt').forEach(function(t,i){t.classList.toggle('active',['terminacion','recria','destete','reproductor'][i]===dk);});rDiet(dk);rHD(dk);}
 
 function pCSV(txt){var ls=txt.trim().split('\n');if(!ls.length)return[];var sep=ls[0].includes(';')?';':',';var hd=ls[0].split(sep).map(function(h){return h.trim().replace(/^"|"$/g,'');});return ls.slice(1).map(function(l){var vs=l.split(sep).map(function(v){return v.trim().replace(/^"|"$/g,'');});var o={};hd.forEach(function(h,i){o[h]=vs[i]||'';});return o;}).filter(function(r){return Object.values(r).some(function(v){return v;});});}
-function pF(v){return parseFloat((v||'').toString().replace(',','.'))||0;}
-function procCSV(txt){var rows=pCSV(txt);if(!rows.length)return null;var r0=rows[0];var cF=Object.keys(r0).find(function(k){return k.toLowerCase().includes('fecha');})||'Fecha';var cI=Object.keys(r0).find(function(k){return k.toLowerCase().includes('ingred');})||'Ingrediente';var cK=Object.keys(r0).find(function(k){return k.toLowerCase().includes('real')&&k.toLowerCase().includes('kg')&&!k.toLowerCase().includes('ms')&&!k.toLowerCase().includes('cab');})||'Real (Kg)';var cKM=Object.keys(r0).find(function(k){return k.toLowerCase().includes('real ms')&&k.toLowerCase().includes('kg')&&!k.toLowerCase().includes('cab');})||'Real MS (Kg)';var cC=Object.keys(r0).find(function(k){return k.toLowerCase().includes('costo real');})||'Costo Real ($)';var fecha=rows[0][cF]||'';var pi={};rows.forEach(function(row){var ig=(row[cI]||'').trim();if(!ig)return;if(!pi[ig])pi[ig]={nombre:ig,kg:0,kgMS:0,costo:0};pi[ig].kg+=pF(row[cK]);pi[ig].kgMS+=pF(row[cKM]);pi[ig].costo+=pF(row[cC]);});return{fecha:fecha,insumos:pi,filas:rows.length};}
+function pF(v){
+  var s=(v||'').toString().trim();
+  // formato argentino: 1.234.567,89 -> quitar puntos, cambiar coma por punto
+  if(s.indexOf(',')>-1&&s.indexOf('.')>-1){
+    // tiene ambos: el punto es miles, la coma es decimal
+    s=s.replace(/\./g,'').replace(',','.');
+  } else if(s.indexOf(',')>-1){
+    // solo coma: es decimal
+    s=s.replace(',','.');
+  }
+  return parseFloat(s)||0;
+}
+function procCSV(txt){
+  var rows=pCSV(txt);if(!rows.length)return null;
+  var r0=rows[0];
+  var cF=Object.keys(r0).find(function(k){return k.toLowerCase().includes('fecha');})||'Fecha';
+  var cI=Object.keys(r0).find(function(k){return k.toLowerCase().includes('ingred');})||'Ingrediente';
+  var cK=Object.keys(r0).find(function(k){return k.toLowerCase().includes('real')&&k.toLowerCase().includes('kg')&&!k.toLowerCase().includes('ms')&&!k.toLowerCase().includes('cab');})||'Real (Kg)';
+  var cKM=Object.keys(r0).find(function(k){return k.toLowerCase().includes('real ms')&&k.toLowerCase().includes('kg')&&!k.toLowerCase().includes('cab');})||'Real MS (Kg)';
+  var cC=Object.keys(r0).find(function(k){return k.toLowerCase().includes('costo real');})||'Costo Real ($)';
+  // agrupar por mes y por ingrediente
+  var porMes={};
+  rows.forEach(function(row){
+    var fecha=(row[cF]||'').trim();
+    var ig=(row[cI]||'').trim();
+    if(!fecha||!ig)return;
+    if(!porMes[fecha])porMes[fecha]={};
+    if(!porMes[fecha][ig])porMes[fecha][ig]={nombre:ig,kg:0,kgMS:0,costo:0};
+    porMes[fecha][ig].kg+=pF(row[cK]);
+    porMes[fecha][ig].kgMS+=pF(row[cKM]);
+    porMes[fecha][ig].costo+=pF(row[cC]);
+  });
+  var meses=Object.keys(porMes).sort();
+  return{meses:meses,porMes:porMes,filas:rows.length,multi:meses.length>1};
+}
 function dov(e){e.preventDefault();document.getElementById('dz').classList.add('over');}
 function dlv(){document.getElementById('dz').classList.remove('over');}
 function ddr(e){e.preventDefault();dlv();var f=e.dataTransfer.files[0];if(f)rFile(f);}
 function fsel(e){var f=e.target.files[0];if(f)rFile(f);e.target.value='';}
-function rFile(f){var r=new FileReader();r.onload=function(e){var res=procCSV(e.target.result);if(!res){iSt('err','No se pudo leer el archivo.');return;}var k=res.fecha.replace('-','_');cusData[k]={fecha:res.fecha,insumos:res.insumos,importado:new Date().toISOString()};FB('feedlot/consumos',cusData);curMes=k;iSt('ok','✓ Importado: '+res.fecha+' — '+Object.keys(res.insumos).length+' insumos');rMeses();rCDet(k);rCG();};r.readAsText(f,'UTF-8');}
+function rFile(f){var r=new FileReader();r.onload=function(e){
+  var res=procCSV(e.target.result);
+  if(!res){iSt('err','No se pudo leer el archivo.');return;}
+  var imported=[];
+  res.meses.forEach(function(fecha){
+    var k=fecha.replace('-','_');
+    cusData[k]={fecha:fecha,insumos:res.porMes[fecha],importado:new Date().toISOString()};
+    imported.push(fecha);
+  });
+  FB('feedlot/consumos',cusData);
+  curMes=res.meses[res.meses.length-1].replace('-','_');
+  var msg=res.multi
+    ?'✓ Importados '+res.meses.length+' meses: '+res.meses.join(', ')+' ('+res.filas+' filas)'
+    :'✓ Importado: '+res.meses[0]+' — '+Object.keys(res.porMes[res.meses[0]]).length+' insumos';
+  iSt('ok',msg);
+  rMeses();rCDet(curMes);rCG();
+};r.readAsText(f,'UTF-8');}
 function iSt(t,m){var e=document.getElementById('ist');e.style.display='block';e.style.background=t==='ok'?'var(--acl)':'var(--rdl)';e.style.color=t==='ok'?'var(--ac)':'var(--rd)';e.textContent=m;}
 function gU(n){var u=n.toUpperCase();if(u.includes('BIOPREMIX'))return{s:25,l:'bolsa',p:'bolsas'};if(u.includes('ROLLO'))return{s:360,l:'rollo',p:'rollos'};return{s:30000,l:'camión',p:'camiones'};}
+function rResumenAnual(){
+  var ms=Object.keys(cusData).sort();
+  var card=document.getElementById('cra');
+  if(!card)return;
+  if(!ms.length){card.style.display='none';return;}
+  card.style.display='block';
+
+  // acumular por insumo
+  var acum={};
+  ms.forEach(function(k){
+    var mes=cusData[k];
+    Object.values(mes.insumos).forEach(function(ins){
+      if(!acum[ins.nombre])acum[ins.nombre]={nombre:ins.nombre,kg:0,kgMS:0,costo:0,meses:0};
+      acum[ins.nombre].kg+=ins.kg;
+      acum[ins.nombre].kgMS+=ins.kgMS;
+      acum[ins.nombre].costo+=ins.costo;
+      acum[ins.nombre].meses+=1;
+    });
+  });
+
+  var lista=Object.values(acum).sort(function(a,b){return b.kg-a.kg;});
+  var tKg=lista.reduce(function(s,x){return s+x.kg;},0);
+  var tCosto=lista.reduce(function(s,x){return s+x.costo;},0);
+  var tUSD=tc&&tc>0?tCosto/tc:null;
+  var nMeses=ms.length;
+
+  // sub label
+  var sub=document.getElementById('cra-sub');
+  if(sub){
+    var labels=ms.map(function(k){return cusData[k].fecha||k;});
+    sub.textContent=nMeses+' mes'+(nMeses>1?'es':'')+' cargados: '+labels.join(', ');
+  }
+
+  // cards resumen
+  var cardsEl=document.getElementById('cra-cards');
+  if(cardsEl){
+    cardsEl.innerHTML=
+      '<div class="dc hbl"><div class="dcl">Costo total ARS</div><div class="dcv" style="color:var(--bl)">$'+Math.round(tCosto).toLocaleString('es-AR')+'</div></div>'
+      +'<div class="dc hgr"><div class="dcl">Costo total USD</div><div class="dcv" style="color:var(--ac)">'+(tUSD?'U$S '+Math.round(tUSD).toLocaleString('es-AR'):'Sin TC')+'</div>'+(tc?'<div class="dcs">TC $'+tc.toLocaleString('es-AR',{minimumFractionDigits:2})+'</div>':'')+'</div>'
+      +'<div class="dc"><div class="dcl">Total kg consumidos</div><div class="dcv">'+Math.round(tKg).toLocaleString('es-AR')+' kg</div></div>'
+      +'<div class="dc"><div class="dcl">Meses cargados</div><div class="dcv">'+nMeses+'</div></div>'
+      +'<div class="dc"><div class="dcl">Costo promedio mensual</div><div class="dcv" style="color:var(--bl)">$'+Math.round(tCosto/nMeses).toLocaleString('es-AR')+'</div></div>';
+  }
+
+  // tabla
+  var tb=document.getElementById('cra-tb');
+  if(tb){
+    var rows=lista.map(function(ins){
+      var pct=tKg>0?(ins.kg/tKg*100).toFixed(1):'—';
+      var promMes=Math.round(ins.kg/nMeses).toLocaleString('es-AR');
+      return '<tr>'
+        +'<td class="tdn">'+ins.nombre+'</td>'
+        +'<td style="font-family:var(--mo);font-size:12px">'+Math.round(ins.kg).toLocaleString('es-AR')+' kg</td>'
+        +'<td style="font-family:var(--mo);font-size:12px">'+Math.round(ins.kgMS).toLocaleString('es-AR')+' kg</td>'
+        +'<td class="tdc">$'+Math.round(ins.costo).toLocaleString('es-AR')+'</td>'
+        +'<td style="font-family:var(--mo);font-size:12px">'+pct+'%</td>'
+        +'<td class="tdg">'+promMes+' kg</td>'
+        +'</tr>';
+    }).join('');
+    rows+='<tr style="background:var(--sf2);border-top:2px solid var(--bd2)">'
+      +'<td class="tdn" style="font-weight:700">TOTAL</td>'
+      +'<td style="font-family:var(--mo);font-size:12px;font-weight:700">'+Math.round(tKg).toLocaleString('es-AR')+' kg</td>'
+      +'<td></td>'
+      +'<td style="font-family:var(--mo);font-size:12px;font-weight:700;color:var(--bl)">$'+Math.round(tCosto).toLocaleString('es-AR')+'</td>'
+      +'<td></td>'
+      +'<td style="font-family:var(--mo);font-size:12px;font-weight:700">'+Math.round(tKg/nMeses).toLocaleString('es-AR')+' kg</td>'
+      +'</tr>';
+    tb.innerHTML=rows;
+  }
+}
+
 function rMeses(){
   var ms=Object.keys(cusData).sort();
   document.getElementById('cmc').style.display=ms.length?'block':'none';
@@ -550,7 +1018,18 @@ function rMeses(){
   if(!curMes||!cusData[curMes])curMes=ms[ms.length-1];
   var h=ms.map(function(k){var m=cusData[k];var ia=k===curMes?' active':'';return '<div class="mst'+ia+'" onclick="selM(\''+k+'\')">'+(m.fecha||k)+'<span class="mstd" onclick="event.stopPropagation();delM(\''+k+'\')">✕</span></div>';}).join('');
   document.getElementById('cmt').innerHTML=h;
-  rCDet(curMes);rCG();
+  // mostrar última fecha de carga
+  var fechaEl=document.getElementById('cmc-fecha');
+  if(fechaEl&&ms.length){
+    var lastKey=ms[ms.length-1];
+    var lastImport=cusData[lastKey]&&cusData[lastKey].importado;
+    if(lastImport){
+      var d=new Date(lastImport);
+      var lbl=d.toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      fechaEl.textContent='Última carga: '+lbl;
+    }
+  }
+  rCDet(curMes);rCG();rResumenAnual();
 }
 function selM(k){curMes=k;rMeses();}
 function delM(k){if(!confirm('Eliminar mes '+( cusData[k]&&cusData[k].fecha?cusData[k].fecha:k)+'?'))return;delete cusData[k];FB('feedlot/consumos',cusData);}
@@ -725,7 +1204,7 @@ function cpF(n,ptc,pms){navigator.clipboard.writeText(n+'\t$'+Math.round(ptc).to
 function copyAll(){var t='Insumo\tARS/tn TC\tARS/kg TC\tARS/tn MS\tARS/kg MS\n';ins.forEach(function(i){var ptc=pTC(i)||0,pms=pMS(i)||0;t+=i.nombre+'\t$'+Math.round(ptc).toLocaleString('es-AR')+'\t$'+(ptc/1000).toFixed(2)+'\t$'+Math.round(pms).toLocaleString('es-AR')+'\t$'+(pms/1000).toFixed(2)+'\n';});navigator.clipboard.writeText(t).then(function(){status2('Tabla copiada');}).catch(function(){});}
 
 function T(name){
-  var ns=['insumos','dietas','consumos','ms','msgraf','hist','graf','exp'];
+  var ns=['dash','insumos','dietas','consumos','ms','biod','msgraf','hist','graf','exp'];
   document.querySelectorAll('.nav-i').forEach(function(t,i){t.classList.toggle('active',ns[i]===name);});
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
   document.getElementById('p-'+name).classList.add('active');
@@ -735,10 +1214,15 @@ function T(name){
   if(name==='exp')rExp();
   if(name==='ms'){rMSsel();rMS();rMSfiltro();}
   if(name==='msgraf'){rChips();rMSG();}
-  if(name==='consumos'){rMeses();if(Object.keys(cusData).length)rCG();}
+  if(name==='consumos'){rMeses();if(Object.keys(cusData).length){rCG();rResumenAnual();}}
+  if(name==='biod'){rBDsel();rBD();}
+  if(name==='dash')rDash();
 }
 
+document.getElementById('bd-ins')&&document.getElementById('bd-ins').addEventListener('change',bdPreview);
+document.getElementById('bd-kg')&&document.getElementById('bd-kg').addEventListener('input',bdPreview);
 var hoy=new Date();document.getElementById('msf').value=hoy.getFullYear()+'-'+String(hoy.getMonth()+1).padStart(2,'0')+'-'+String(hoy.getDate()).padStart(2,'0');
+var bdf=document.getElementById('bd-fecha');if(bdf)bdf.value=hoy.getFullYear()+'-'+String(hoy.getMonth()+1).padStart(2,'0')+'-'+String(hoy.getDate()).padStart(2,'0');
 fetchTC();rGS();rHist();rMSsel();
 </script>
 </body>
