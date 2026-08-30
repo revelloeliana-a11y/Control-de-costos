@@ -161,6 +161,7 @@ select{font-family:var(--sa);font-size:12px;padding:4px 7px;border:1px solid var
     <div class="nav-i" onclick="T('consumos')">📥 Consumos Cattler</div>
     <div class="nav-i" onclick="T('ms')">🧪 Mediciones MS</div>
     <div class="nav-i" onclick="T('biod')">♻️ Biodigestor</div>
+    <div class="nav-i" onclick="T('costos')">💉 Sanidad</div>
     <div class="nav-s">Análisis</div>
     <div class="nav-i" onclick="T('msgraf')">📊 Evolución MS</div>
     <div class="nav-i" onclick="T('hist')">📋 Historial precios</div>
@@ -302,7 +303,35 @@ select{font-family:var(--sa);font-size:12px;padding:4px 7px;border:1px solid var
 
     <div id="p-biod" class="panel">
       <div class="card">
-        <div class="ch"><div class="ct">♻️ Registro de consumo — Biodigestor</div></div>
+        <div class="ch">
+          <div class="ct">📥 Importar desde planilla de alimentación</div>
+          <div style="font-size:11px;color:var(--tx3)">Hoja "Alimentación" del Control Operacional ADS</div>
+        </div>
+        <div class="cb">
+          <div class="dz" id="bd-dz" onclick="document.getElementById('bd-fi').click()" ondragover="dov2(event)" ondragleave="dlv2()" ondrop="ddr2(event)">
+            <div style="font-size:28px;margin-bottom:6px">📂</div>
+            <div style="font-weight:600;margin-bottom:3px">Arrastrá el Excel o hacé clic</div>
+            <div style="font-size:12px;color:var(--tx3)">Archivo .xlsx — Control Operacional ADS</div>
+          </div>
+          <input type="file" id="bd-fi" accept=".xlsx,.xls" style="display:none" onchange="bdFileSelect(event)"/>
+          <div id="bd-ist" style="display:none;padding:9px 12px;border-radius:var(--r);font-size:12px;margin-bottom:10px"></div>
+        </div>
+      </div>
+
+      <!-- Meses importados biodigestor -->
+      <div class="card" id="bd-mc" style="display:none">
+        <div class="ch">
+          <div class="ct">Meses importados</div>
+          <div style="font-size:11px;color:var(--tx3)" id="bd-mc-fecha"></div>
+        </div>
+        <div class="cb">
+          <div id="bd-mt" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px"></div>
+          <div id="bd-det"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ct">♻️ Registro manual de consumo</div></div>
         <div class="cb">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;margin-bottom:14px">
             <div class="fg">
@@ -340,6 +369,47 @@ select{font-family:var(--sa);font-size:12px;padding:4px 7px;border:1px solid var
         </table></div>
         <div id="bd-empty" class="es" style="display:none">Sin registros aún.</div>
       </div>
+    </div>
+
+    <div id="p-costos" class="panel">
+
+      <!-- SANIDAD -->
+      <div class="card">
+        <div class="ch">
+          <div class="ct">💉 Sanidad</div>
+          <div class="bg">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:11px;color:var(--tx3)">Cabezas:</span>
+              <input type="number" id="san-cab" value="500" min="1" step="1" style="width:70px;font-size:13px;font-weight:600" onchange="rSan()"/>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:11px;color:var(--tx3)">IVA:</span>
+              <input type="number" id="san-iva" value="21" min="0" max="100" step="1" style="width:55px" onchange="rSan()"/>
+              <span style="font-size:11px;color:var(--tx3)">%</span>
+            </div>
+            <button class="btn btn-s" onclick="addSanProd()">➕ Producto</button>
+          </div>
+        </div>
+        <div class="cb">
+          <!-- RESUMEN ARRIBA -->
+          <div id="san-resumen" style="margin-bottom:20px"></div>
+          <!-- 1 DOSIS -->
+          <div style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--ac)">Sanidad con 1 dosis</div>
+          <div class="tw" style="margin-bottom:16px"><table>
+            <thead><tr><th>Producto</th><th>Unidad</th><th>Precio/frasco ($)</th><th>Precio unitario ($)</th><th>Dosis/cab</th><th>Unidad dosis</th><th>Costo/cab sin IVA</th><th>Costo/cab con IVA</th><th></th></tr></thead>
+            <tbody id="san-tb1"></tbody>
+            <tfoot id="san-tf1"></tfoot>
+          </table></div>
+          <!-- 2 DOSIS -->
+          <div style="font-weight:600;font-size:13px;margin-bottom:8px;color:var(--ac)">Sanidad con 2 dosis</div>
+          <div class="tw" style="margin-bottom:16px"><table>
+            <thead><tr><th>Producto</th><th>Unidad</th><th>Precio/frasco ($)</th><th>Precio unitario ($)</th><th>Dosis/cab</th><th>Unidad dosis</th><th>Costo/cab sin IVA</th><th>Costo/cab con IVA</th><th></th></tr></thead>
+            <tbody id="san-tb2"></tbody>
+            <tfoot id="san-tf2"></tfoot>
+          </table></div>
+        </div>
+      </div>
+
     </div>
 
     <div id="p-ms" class="panel">
@@ -452,6 +522,15 @@ var DD={
 var tc=null,ins=JSON.parse(JSON.stringify(ID)),dietas=JSON.parse(JSON.stringify(DD));
 var dCats=null,dTC=null,dComp=null,dTop=null,dEvol=null;
 var bdData=[];
+var bdMensuales={};
+var bdMesActual=null;
+var sanData=[
+  {id:'s1',nombre:'Biopoligen Q',unidad:'$/dosis',precioFrasco:26139.8,precioUnit:1306.99,dosis:1,unidadDosis:'dosis'},
+  {id:'s2',nombre:'Bioclostrigen J5',unidad:'$/dosis',precioFrasco:32619,precioUnit:543.65,dosis:1,unidadDosis:'dosis'},
+  {id:'s3',nombre:'FLOK 3.15% 500 ml',unidad:'$/ml',precioFrasco:154958.82,precioUnit:309.92,dosis:6,unidadDosis:'ml'},
+  {id:'s4',nombre:'TRIATIX aspersión 1 lt',unidad:'$/animal',precioFrasco:77756,precioUnit:77.756,dosis:8.33,unidadDosis:'ml'},
+  {id:'s5',nombre:'Caravana identificatoria',unidad:'$/animal',precioFrasco:660,precioUnit:660,dosis:1,unidadDosis:'caravana'}
+];
 var hist=[],msData=[],cusData={},hdData={},icData=[];
 var curDiet='terminacion',chInst=null,msCh=null,ckInst=null,ccInst=null;
 var msSel=new Set(),curMes=null,curCG='kg';
@@ -468,6 +547,8 @@ db.ref('feedlot/insCustom').on('value',function(s){icData=s.exists()?Object.valu
 db.ref('feedlot/consumos').on('value',function(s){cusData=s.exists()?s.val():{};rMeses();});
 db.ref('feedlot/historialDietas').on('value',function(s){hdData=s.exists()?s.val():{};rHD(curDiet);});
 db.ref('feedlot/biodigestor').on('value',function(s){bdData=s.exists()?Object.values(s.val()):[];rBD();});
+db.ref('feedlot/sanidad').on('value',function(s){if(s.exists()){sanData=Object.values(s.val());}rSan();});
+db.ref('feedlot/bdMensuales').on('value',function(s){bdMensuales=s.exists()?s.val():{};rBDmeses();});
 
 function getDiasMes(curK){
   if(!curK||!cusData[curK])return 30;
@@ -705,6 +786,270 @@ function rBD(){
 }
 
 
+function dov2(e){e.preventDefault();document.getElementById('bd-dz').classList.add('over');}
+function dlv2(){document.getElementById('bd-dz').classList.remove('over');}
+function ddr2(e){e.preventDefault();dlv2();var f=e.dataTransfer.files[0];if(f)bdReadFile(f);}
+function bdFileSelect(e){var f=e.target.files[0];if(f)bdReadFile(f);e.target.value='';}
+
+function bdReadFile(file){
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var data=new Uint8Array(e.target.result);
+    // use SheetJS if available
+    if(typeof XLSX==='undefined'){
+      bdIst('err','Cargando librería Excel...');
+      var s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload=function(){bdParseExcel(data,file.name);};
+      document.head.appendChild(s);
+    } else {
+      bdParseExcel(data,file.name);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function bdParseExcel(data,fname){
+  try{
+    var wb=XLSX.read(data,{type:'array',cellDates:true});
+    // find Alimentación sheet
+    var sheetName=wb.SheetNames.find(function(n){return n.toLowerCase().includes('alimenta');});
+    if(!sheetName){bdIst('err','No se encontró la hoja "Alimentación" en el archivo.');return;}
+    var ws=wb.Sheets[sheetName];
+    var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:false});
+
+    // find header row (row index 3 = fila 4)
+    var headerRow=rows[3];
+    var fechaCol=1;
+    // identify insumo columns
+    var EXCLUIR=['carga orgánica','volumen alimentado','tiempo de retención','digestato','cov','trh'];
+    var insCols=[];
+    headerRow.forEach(function(v,j){
+      if(j<2||!v)return;
+      var nombre=String(v).trim();
+      if(EXCLUIR.some(function(e){return nombre.toLowerCase().includes(e);}))return;
+      // clean name
+      var limpio=nombre.replace(/\s*[\[\(]?(TK1|TK2|TK 1|TK 2)[\]\)]?\s*$/i,'').trim();
+      limpio=limpio.replace(/\s*(TK1|TK2|TK 1|TK 2)\s*$/i,'').trim();
+      // find existing entry
+      // clean name for Firebase key (remove special chars)
+      var key=limpio.replace(/[\.#\$\/\[\]]/g,'').replace(/\s+/g,'_').trim();
+      var ex=insCols.find(function(x){return x.key===key;});
+      if(ex){ex.cols.push(j);}
+      else{insCols.push({nombre:limpio,key:key,cols:[j]});}
+    });
+
+    // aggregate by month
+    var porMes={};
+    rows.slice(4).forEach(function(row){
+      if(!row||!row[fechaCol])return;
+      var fd=row[fechaCol];
+      var dt=fd instanceof Date?fd:new Date(fd);
+      if(isNaN(dt.getTime()))return;
+      var mes=(dt.getFullYear())+'-'+String(dt.getMonth()+1).padStart(2,'0');
+      if(!porMes[mes])porMes[mes]={};
+      insCols.forEach(function(ins){
+        var total=ins.cols.reduce(function(s,c){
+          var v=parseFloat(String(row[c]||0).replace(',','.'));
+          return s+(isNaN(v)?0:v);
+        },0);
+        if(total>0){
+          if(!porMes[mes][ins.key])porMes[mes][ins.key]={nombre:ins.nombre,key:ins.key,cantidad:0};
+          porMes[mes][ins.key].cantidad+=total;
+        }
+      });
+    });
+
+    var meses=Object.keys(porMes).sort();
+    if(!meses.length){bdIst('err','No se encontraron datos en el archivo.');return;}
+
+    // merge into bdMensuales
+    meses.forEach(function(mes){
+      var k=mes.replace('-','_');
+      bdMensuales[k]={fecha:mes,insumos:porMes[mes],importado:new Date().toISOString()};
+    });
+    FB('feedlot/bdMensuales',bdMensuales);
+    bdMesActual=meses[meses.length-1].replace('-','_');
+    bdIst('ok','✓ Importados '+meses.length+' meses: '+meses.slice(0,3).join(', ')+(meses.length>3?'...':''));
+    rBDmeses();
+  }catch(ex){
+    bdIst('err','Error al leer el archivo: '+ex.message);
+  }
+}
+
+function bdIst(t,m){var e=document.getElementById('bd-ist');e.style.display='block';e.style.background=t==='ok'?'var(--acl)':'var(--rdl)';e.style.color=t==='ok'?'var(--ac)':'var(--rd)';e.textContent=m;}
+
+function rBDmeses(){
+  var ms=Object.keys(bdMensuales).sort();
+  var card=document.getElementById('bd-mc');
+  if(!card)return;
+  if(!ms.length){card.style.display='none';return;}
+  card.style.display='block';
+  if(!bdMesActual||!bdMensuales[bdMesActual])bdMesActual=ms[ms.length-1];
+  // last import date
+  var ul=document.getElementById('bd-mc-fecha');
+  if(ul){var ui=ms.map(function(k){return bdMensuales[k].importado||'';}).filter(Boolean).sort().pop();if(ui){var ud=new Date(ui);ul.textContent='Última carga: '+ud.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});}}
+  // tags
+  var tagsEl=document.getElementById('bd-mt');
+  // build tags using DOM
+tagsEl.innerHTML='';
+ms.forEach(function(k){
+  var m=bdMensuales[k];
+  var div=document.createElement('div');
+  div.className='mst'+(k===bdMesActual?' active':'');
+  div.textContent=(m.fecha||k);
+  div.addEventListener('click',function(){selBDmes(k);});
+  var sp=document.createElement('span');
+  sp.className='mstd';sp.textContent='✕';
+  sp.addEventListener('click',function(e){e.stopPropagation();delBDmes(k);});
+  div.appendChild(sp);
+  tagsEl.appendChild(div);
+});
+  rBDdet(bdMesActual);
+}
+
+function selBDmes(k){bdMesActual=k;rBDmeses();}
+function delBDmes(k){if(!confirm('Eliminar mes '+( bdMensuales[k]&&bdMensuales[k].fecha?bdMensuales[k].fecha:k)+'?'))return;delete bdMensuales[k];FB('feedlot/bdMensuales',bdMensuales);}
+
+function rBDdet(k){
+  var el=document.getElementById('bd-det');if(!el)return;
+  var mes=bdMensuales[k];if(!mes)return;
+  var lista=Object.values(mes.insumos).sort(function(a,b){return b.cantidad-a.cantidad;});
+  var tTotal=lista.reduce(function(s,x){return s+x.cantidad;},0);
+  var tCosto=0;
+  var DENSIDAD_PURIN=1030; // kg/m3
+  var rows=lista.map(function(item){
+    var nombre=item.nombre||item.key||'';
+    // detectar si es m3
+    var esM3=nombre.toLowerCase().includes('m3')||nombre.toLowerCase().includes('[m3]');
+    // kg: si es m3 de purín, convertir con densidad
+    var esPurin=nombre.toLowerCase().includes('purin')||nombre.toLowerCase().includes('purín');
+    var cantidadM3=esM3?item.cantidad:null;
+    var cantidadKg=esM3?(esPurin?item.cantidad*DENSIDAD_PURIN:null):item.cantidad;
+    // buscar precio en lista de insumos
+    var nombreLow=nombre.toLowerCase().replace(/[^a-záéíóúñ0-9]/g,'');
+    var insMatch=(ins||[]).find(function(i){
+      var iLow=i.nombre.toLowerCase().replace(/[^a-záéíóúñ0-9]/g,'');
+      return iLow.includes(nombreLow.substring(0,5))||nombreLow.includes(iLow.substring(0,5));
+    });
+    var precio=insMatch?pTC(insMatch):0;
+    var baseKg=cantidadKg||0;
+    var costo=precio>0&&baseKg>0?baseKg*(precio/1000):0;
+    tCosto+=costo;
+    var camiones=cantidadKg&&cantidadKg>0?(cantidadKg/30000).toFixed(2)+' camiones':'—';
+    return'<tr>'
+      +'<td class="tdn">'+nombre+'</td>'
+      +'<td style="font-family:var(--mo);font-size:12px">'+(cantidadM3!==null?item.cantidad.toLocaleString('es-AR',{maximumFractionDigits:1})+' m³':'—')+'</td>'
+      +'<td style="font-family:var(--mo);font-size:12px">'+(cantidadKg!==null?Math.round(cantidadKg).toLocaleString('es-AR')+' kg':'—')+'</td>'
+      +'<td class="tdc">'+(costo>0?'$'+Math.round(costo).toLocaleString('es-AR'):'—')+'</td>'
+      +'<td class="tda">'+camiones+'</td>'
+      +'</tr>';
+  }).join('');
+  el.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin-bottom:14px">'
+    +'<div class="dc"><div class="dcl">Insumos distintos</div><div class="dcv">'+lista.length+'</div></div>'
+    +'<div class="dc hbl"><div class="dcl">Costo total estimado</div><div class="dcv" style="color:var(--bl)">'+(tCosto>0?'$'+Math.round(tCosto).toLocaleString('es-AR'):'—')+'</div></div>'
+    +'</div>'
+    +'<div class="tw"><table>'
+    +'<thead><tr><th>Insumo</th><th>m³</th><th>kg</th><th>Costo estimado ($)</th><th>Camiones (30t)</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody>'
+    +'</table></div>';
+}
+
+
+function addSanProd(){
+  var n=prompt('Nombre del producto:');if(!n)return;
+  sanData.push({id:'s'+Date.now(),nombre:n,unidad:'$/unidad',precioFrasco:0,precioUnit:0,dosis:1,unidadDosis:'dosis'});
+  FB('feedlot/sanidad',sanData);rSan();
+}
+
+function delSanProd(id){
+  if(!confirm('Eliminar producto?'))return;
+  sanData=sanData.filter(function(x){return x.id!==id;});
+  FB('feedlot/sanidad',sanData);rSan();
+}
+
+function updSan(id,field,val){
+  var p=sanData.find(function(x){return x.id===id;});if(!p)return;
+  p[field]=['precioFrasco','precioUnit','dosis'].includes(field)?parseFloat(val)||0:val;
+  clearTimeout(window._sanTimer);
+  window._sanTimer=setTimeout(function(){FB('feedlot/sanidad',sanData);},1200);
+  rSan();
+}
+
+function rSanTabla(tbId, tfId, dosis){
+  var tb=document.getElementById(tbId);
+  var tf=document.getElementById(tfId);
+  if(!tb||!tf)return{sinIVA:0,conIVA:0};
+  var iva=1+(parseFloat(document.getElementById('san-iva').value)||21)/100;
+  var cab=parseFloat(document.getElementById('san-cab').value)||500;
+  var totalSin=0,totalCon=0;
+  tb.innerHTML='';
+  sanData.forEach(function(p){
+    var costSin=p.precioUnit*p.dosis*dosis;
+    var costCon=costSin*iva;
+    totalSin+=costSin;totalCon+=costCon;
+    var tr=document.createElement('tr');
+    // create cells
+    function mkInpText(val,field,w){var i=document.createElement('input');i.type='text';i.value=val;i.style.cssText='width:'+w+'px;font-family:var(--sa);font-size:12px;padding:3px 6px;border:1px solid var(--bd2);border-radius:5px';i.addEventListener('change',function(){updSan(p.id,field,this.value);});return i;}
+    function mkInpNum(val,field,w,step){var i=document.createElement('input');i.type='number';i.value=val;i.step=step||'0.01';i.min='0';i.style.cssText='width:'+w+'px;font-family:var(--mo);font-size:12px;padding:3px 6px;border:1px solid var(--bd2);border-radius:5px';i.addEventListener('change',function(){updSan(p.id,field,this.value);});return i;}
+    var td0=document.createElement('td');td0.appendChild(mkInpText(p.nombre,'nombre',160));
+    var td1=document.createElement('td');td1.appendChild(mkInpText(p.unidad,'unidad',75));
+    var td2=document.createElement('td');td2.appendChild(mkInpNum(p.precioFrasco,'precioFrasco',95));
+    var td3=document.createElement('td');td3.appendChild(mkInpNum(p.precioUnit,'precioUnit',85));
+    // dosis input - shows dosis*multiplier but saves dosis base
+    var inpDosis=document.createElement('input');inpDosis.type='number';inpDosis.value=parseFloat((p.dosis*dosis).toFixed(4));inpDosis.step='0.01';inpDosis.min='0';inpDosis.style.cssText='width:65px;font-family:var(--mo);font-size:12px;padding:3px 6px;border:1px solid var(--bd2);border-radius:5px';
+    inpDosis.addEventListener('change',function(){updSan(p.id,'dosis',parseFloat(this.value)/dosis);});
+    var td4=document.createElement('td');td4.appendChild(inpDosis);
+    var td5=document.createElement('td');td5.appendChild(mkInpText(p.unidadDosis,'unidadDosis',70));
+    var td6=document.createElement('td');td6.className='tdc';td6.textContent='$'+costSin.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    var td7=document.createElement('td');td7.className='tdg';td7.textContent='$'+costCon.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    var btn=document.createElement('button');btn.className='msdb';btn.textContent='🗑';btn.addEventListener('click',function(){delSanProd(p.id);});
+    var td8=document.createElement('td');td8.appendChild(btn);
+    [td0,td1,td2,td3,td4,td5,td6,td7,td8].forEach(function(td){tr.appendChild(td);});
+    tb.appendChild(tr);
+  });
+  var tUSD=tc&&tc>0?totalSin/tc:null;
+  var usdSin=tc&&tc>0?(totalSin/tc):null;
+  var usdCon=tc&&tc>0?(totalCon/tc):null;
+  tf.innerHTML='<tr style="background:var(--sf2);border-top:2px solid var(--bd2)"><td colspan="6" style="font-weight:700;font-family:var(--sa)">TOTAL por cabeza</td>'
+    +'<td class="tdc" style="font-weight:700">$'+totalSin.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td>'
+    +'<td class="tdg" style="font-weight:700">$'+totalCon.toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td>'
+    +'<td></td></tr>'
+    +'<tr style="background:var(--bll);border-top:1px solid var(--bd)"><td colspan="6" style="font-weight:600;font-family:var(--sa);color:var(--bl)">TOTAL por cabeza (USD)</td>'
+    +'<td style="font-family:var(--mo);font-size:12px;font-weight:700;color:var(--bl)">'+(usdSin?'U$S '+usdSin.toFixed(2):'Sin TC')+'</td>'
+    +'<td style="font-family:var(--mo);font-size:12px;font-weight:700;color:var(--bl)">'+(usdCon?'U$S '+usdCon.toFixed(2):'Sin TC')+'</td>'
+    +'<td></td></tr>';
+  return{sinIVA:totalSin,conIVA:totalCon,cab:cab,tUSD:tUSD};
+}
+function rSan(){
+  var r1=rSanTabla('san-tb1','san-tf1',1);
+  var r2=rSanTabla('san-tb2','san-tf2',2);
+  var cab=parseFloat(document.getElementById('san-cab')&&document.getElementById('san-cab').value)||500;
+  var iva=parseFloat(document.getElementById('san-iva')&&document.getElementById('san-iva').value)||21;
+  var resEl=document.getElementById('san-resumen');
+  if(!resEl)return;
+  var tUSD1=tc&&tc>0?r1.sinIVA/tc:null;
+  var tUSD2=tc&&tc>0?r2.sinIVA/tc:null;
+  resEl.innerHTML=
+    // 1 DOSIS
+    '<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:var(--ac);font-family:var(--mo);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;padding:6px 10px;background:var(--acl);border-radius:var(--r)">💉 1 Dosis — '+cab+' cabezas</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px">'
+    +'<div class="dc hbl"><div class="dcl">Costo/cab sin IVA</div><div class="dcv" style="color:var(--bl)">$'+r1.sinIVA.toLocaleString('es-AR',{maximumFractionDigits:0})+'</div><div class="dcs">'+(tUSD1?'U$S '+tUSD1.toFixed(2):'—')+'</div></div>'
+    +'<div class="dc hgr"><div class="dcl">Costo/cab con IVA</div><div class="dcv" style="color:var(--ac)">$'+r1.conIVA.toLocaleString('es-AR',{maximumFractionDigits:0})+'</div></div>'
+    +'<div class="dc hbl"><div class="dcl">Total lote sin IVA</div><div class="dcv" style="color:var(--bl)">$'+(r1.sinIVA*cab).toLocaleString('es-AR',{maximumFractionDigits:0})+'</div><div class="dcs">'+(tUSD1?'U$S '+(tUSD1*cab).toFixed(0):'—')+'</div></div>'
+    +'<div class="dc hgr"><div class="dcl">Total lote con IVA</div><div class="dcv" style="color:var(--ac)">$'+(r1.conIVA*cab).toLocaleString('es-AR',{maximumFractionDigits:0})+'</div></div>'
+    +'</div></div>'
+    // 2 DOSIS
+    +'<div><div style="font-size:11px;font-weight:600;color:var(--bl);font-family:var(--mo);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;padding:6px 10px;background:var(--bll);border-radius:var(--r)">💉💉 2 Dosis — '+cab+' cabezas</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px">'
+    +'<div class="dc hbl"><div class="dcl">Costo/cab sin IVA</div><div class="dcv" style="color:var(--bl)">$'+r2.sinIVA.toLocaleString('es-AR',{maximumFractionDigits:0})+'</div><div class="dcs">'+(tUSD2?'U$S '+tUSD2.toFixed(2):'—')+'</div></div>'
+    +'<div class="dc hgr"><div class="dcl">Costo/cab con IVA</div><div class="dcv" style="color:var(--ac)">$'+r2.conIVA.toLocaleString('es-AR',{maximumFractionDigits:0})+'</div></div>'
+    +'<div class="dc hbl"><div class="dcl">Total lote sin IVA</div><div class="dcv" style="color:var(--bl)">$'+(r2.sinIVA*cab).toLocaleString('es-AR',{maximumFractionDigits:0})+'</div><div class="dcs">'+(tUSD2?'U$S '+(tUSD2*cab).toFixed(0):'—')+'</div></div>'
+    +'<div class="dc hgr"><div class="dcl">Total lote con IVA</div><div class="dcv" style="color:var(--ac)">$'+(r2.conIVA*cab).toLocaleString('es-AR',{maximumFractionDigits:0})+'</div></div>'
+    +'</div></div>';
+}
+
+
 function fetchTC(){
   document.getElementById('tcb').innerHTML='<span class="sp"></span>Cargando...';
   fetch('https://dolarapi.com/v1/dolares/oficial').then(function(r){return r.json();}).then(function(d){
@@ -792,8 +1137,8 @@ function rDiet(dk){
       +'<td style="font-family:var(--mo);font-size:12px">'+kTC.toFixed(2)+' kg</td>'
       +'<td style="font-family:var(--mo);font-size:12px">'+i2.ms+'%</td>'
       +'<td style="font-family:var(--mo);font-size:12px">'+kMS.toFixed(2)+' kg</td>'
-      +'<td class="tdc">'+(ctc?'$'+Math.round(ctc).toLocaleString('es-AR'):'—')+'</td>'
-      +'<td class="tdg">'+(cms?'$'+Math.round(cms).toLocaleString('es-AR'):'—')+'</td>'
+      +'<td class="tdc">'+(pTC(i2)>0?'$'+Math.round(ctc).toLocaleString('es-AR'):'—')+'</td>'
+      +'<td class="tdg">'+(pMS(i2)>0?'$'+Math.round(cms).toLocaleString('es-AR'):'—')+'</td>'
       +'<td><button class="btn btn-xs" style="color:var(--rd)" onclick="delDI(\''+dk+'\','+i+')">🗑</button></td>'
       +'</tr>';
   });
@@ -897,7 +1242,9 @@ function procCSV(txt){
   var rows=pCSV(txt);if(!rows.length)return null;
   var r0=rows[0];
   var cF=Object.keys(r0).find(function(k){return k.toLowerCase().includes('fecha');})||'Fecha';
+  // detectar columna de ingrediente: puede ser 'Ingrediente' o 'Dieta + Ingrediente'
   var cI=Object.keys(r0).find(function(k){return k.toLowerCase().includes('ingred');})||'Ingrediente';
+  var cDI=Object.keys(r0).find(function(k){return k.toLowerCase().includes('dieta')&&k.toLowerCase().includes('ingred');})||null;
   var cK=Object.keys(r0).find(function(k){return k.toLowerCase().includes('real')&&k.toLowerCase().includes('kg')&&!k.toLowerCase().includes('ms')&&!k.toLowerCase().includes('cab');})||'Real (Kg)';
   var cKM=Object.keys(r0).find(function(k){return k.toLowerCase().includes('real ms')&&k.toLowerCase().includes('kg')&&!k.toLowerCase().includes('cab');})||'Real MS (Kg)';
   var cC=Object.keys(r0).find(function(k){return k.toLowerCase().includes('costo real');})||'Costo Real ($)';
@@ -905,7 +1252,16 @@ function procCSV(txt){
   var porMes={};
   rows.forEach(function(row){
     var fecha=(row[cF]||'').trim();
-    var ig=(row[cI]||'').trim();
+    // si la columna es 'Dieta + Ingrediente', extraer solo el ingrediente (después del último ' - ')
+    var igRaw='';
+    if(cDI&&row[cDI]){
+      igRaw=row[cDI].trim();
+      var sepIdx=igRaw.lastIndexOf(' - ');
+      if(sepIdx>=0)igRaw=igRaw.substring(sepIdx+3).trim();
+    } else {
+      igRaw=(row[cI]||'').trim();
+    }
+    var ig=igRaw;
     if(!fecha||!ig)return;
     if(!porMes[fecha])porMes[fecha]={};
     if(!porMes[fecha][ig])porMes[fecha][ig]={nombre:ig,kg:0,kgMS:0,costo:0};
@@ -986,7 +1342,7 @@ function rResumenAnual(){
   // tabla
   var tb=document.getElementById('cra-tb');
   if(tb){
-    var rows=lista.map(function(ins){
+    var rows=lista.map(function(item){
       var pct=tKg>0?(ins.kg/tKg*100).toFixed(1):'—';
       var promMes=Math.round(ins.kg/nMeses).toLocaleString('es-AR');
       return '<tr>'
@@ -1204,7 +1560,7 @@ function cpF(n,ptc,pms){navigator.clipboard.writeText(n+'\t$'+Math.round(ptc).to
 function copyAll(){var t='Insumo\tARS/tn TC\tARS/kg TC\tARS/tn MS\tARS/kg MS\n';ins.forEach(function(i){var ptc=pTC(i)||0,pms=pMS(i)||0;t+=i.nombre+'\t$'+Math.round(ptc).toLocaleString('es-AR')+'\t$'+(ptc/1000).toFixed(2)+'\t$'+Math.round(pms).toLocaleString('es-AR')+'\t$'+(pms/1000).toFixed(2)+'\n';});navigator.clipboard.writeText(t).then(function(){status2('Tabla copiada');}).catch(function(){});}
 
 function T(name){
-  var ns=['dash','insumos','dietas','consumos','ms','biod','msgraf','hist','graf','exp'];
+  var ns=['dash','insumos','dietas','consumos','ms','biod','costos','msgraf','hist','graf','exp'];
   document.querySelectorAll('.nav-i').forEach(function(t,i){t.classList.toggle('active',ns[i]===name);});
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
   document.getElementById('p-'+name).classList.add('active');
@@ -1215,7 +1571,8 @@ function T(name){
   if(name==='ms'){rMSsel();rMS();rMSfiltro();}
   if(name==='msgraf'){rChips();rMSG();}
   if(name==='consumos'){rMeses();if(Object.keys(cusData).length){rCG();rResumenAnual();}}
-  if(name==='biod'){rBDsel();rBD();}
+  if(name==='biod'){rBDsel();rBD();rBDmeses();}
+  if(name==='costos'){rSan();}
   if(name==='dash')rDash();
 }
 
